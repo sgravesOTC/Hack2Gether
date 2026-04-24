@@ -15,10 +15,17 @@
 <section class="section">
     <div class="section-inner">
 
+        <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+            <a href="{% url 'clubhouse:club_create' %}" class="btn btn-primary">+ Create Club</a>
+        </div>
+
         {% if clubs %}
             <div class="card-grid">
                 {% for club in clubs %}
-                    <a href="{% url 'clubhouse:club_detail' club.slug %}" class="card card-link">
+                    <a href="{% url 'clubhouse:club_detail' club.slug %}" class="card card-link" style="position: relative;">
+                        {% if is_admin and not club.approved %}
+                            <span class="profile-role-badge" style="position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(255,160,0,0.15); color: #b45309;">Pending Approval</span>
+                        {% endif %}
                         {% if club.image %}
                             <img class="club-icon-img" src="{{ club.image.url }}" alt="{{ club.name }}">
                         {% else %}

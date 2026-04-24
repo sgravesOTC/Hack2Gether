@@ -24,6 +24,9 @@ class Club(models.Model):
     slug = models.SlugField(max_length=60, unique=True, blank=True)
     emoji = models.CharField(max_length=10, blank=True, default='🏛️')
     image = models.ImageField(upload_to='club_images/', null=True, blank=True)
+    approved = models.BooleanField(default=False)
+    pending_advisor_name = models.CharField(max_length=100, blank=True, default='')
+    pending_advisor_email = models.EmailField(blank=True, default='')
 
     def save(self, *args, **kwargs):
         if not self.slug:

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Edit {{ club.name }} | OTCPulse{% endblock %}
+{% block title %}Create Club | OTCPulse{% endblock %}
 
 {% block content %}
 <div class="auth-wrapper">
     <div class="auth-card" style="max-width: 560px;">
-        <h1>Edit Club</h1>
-        <p class="auth-subtitle">{{ club.name }}</p>
+        <h1>Create a Club</h1>
+        <p class="auth-subtitle">Your submission will be reviewed by Student Engagement before appearing in the club list.</p>
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -36,18 +36,6 @@
 
             <div class="field">
                 <label>Club Photo</label>
-                {% if club.image %}
-                    <div class="current-photo">
-                        <img src="{{ club.image.url }}" alt="Current photo">
-                        <div>
-                            <p class="current-photo-name">Current photo</p>
-                            <label class="clear-photo-label">
-                                <input type="checkbox" name="{{ form.image.html_name }}-clear">
-                                Remove photo
-                            </label>
-                        </div>
-                    </div>
-                {% endif %}
                 <div class="file-upload-row">
                     <label for="{{ form.image.id_for_label }}" class="file-upload-btn">Choose Photo</label>
                     <input type="file"
@@ -60,29 +48,27 @@
                 </div>
             </div>
 
-            <div class="field">
-                <label>Officers</label>
-                <div class="checkbox-list">
-                    {{ form.officers }}
+            {% if form.pending_advisor_name %}
+                <div class="card" style="margin: 1.5rem 0; border-left: 3px solid var(--gold);">
+                    <p style="font-weight: 600; margin-bottom: 1rem; color: var(--navy);">Faculty Advisor Information</p>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        Student Engagement will use this to verify your faculty advisor before approving the club.
+                    </p>
+                    <div class="field">
+                        <label for="{{ form.pending_advisor_name.id_for_label }}">{{ form.pending_advisor_name.label }}</label>
+                        {{ form.pending_advisor_name }}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.pending_advisor_email.id_for_label }}">{{ form.pending_advisor_email.label }}</label>
+                        {{ form.pending_advisor_email }}
+                        <small>{{ form.pending_advisor_email.help_text }}</small>
+                    </div>
                 </div>
-                {% if not form.officers.field.queryset.exists %}
-                    <p style="font-size: 0.875rem; color: var(--text-muted);">No students or club officers found.</p>
-                {% endif %}
-            </div>
-
-            <div class="field">
-                <label>Faculty Advisors</label>
-                <div class="checkbox-list">
-                    {{ form.advisors }}
-                </div>
-                {% if not form.advisors.field.queryset.exists %}
-                    <p style="font-size: 0.875rem; color: var(--text-muted);">No faculty advisors found.</p>
-                {% endif %}
-            </div>
+            {% endif %}
 
             <div class="field-submit">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{% url 'clubhouse:club_detail' club.slug %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Submit for Approval</button>
+                <a href="{% url 'clubhouse:club_list' %}" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

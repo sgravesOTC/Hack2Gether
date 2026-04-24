@@ -4,6 +4,27 @@
 
 {% block content %}
 
+{% if is_admin and not club.approved %}
+<div style="background: rgba(255,160,0,0.12); border-bottom: 2px solid #b45309; padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+    <span style="color: #b45309; font-weight: 600;">Pending Approval</span>
+    {% if club.pending_advisor_name %}
+        <span style="font-size: 0.875rem; color: var(--text-muted);">Advisor: {{ club.pending_advisor_name }} &mdash; {{ club.pending_advisor_email }}</span>
+    {% endif %}
+    <form method="post" action="{% url 'clubhouse:approve_club' club.slug %}" style="margin-left: auto;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" style="font-size: 0.875rem; padding: 0.4rem 1rem;">Approve Club</button>
+    </form>
+</div>
+{% elif is_admin and club.approved %}
+<div style="background: rgba(0,200,150,0.08); border-bottom: 2px solid var(--teal); padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1rem;">
+    <span style="color: var(--teal); font-weight: 600;">Approved</span>
+    <form method="post" action="{% url 'clubhouse:approve_club' club.slug %}" style="margin-left: auto;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.4rem 1rem;">Revoke Approval</button>
+    </form>
+</div>
+{% endif %}
+
 <section class="hero hero-short">
     <div class="hero-inner">
         <span class="hero-badge">Club</span>

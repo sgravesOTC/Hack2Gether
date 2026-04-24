@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ club.name }} | OTCPulse{% endblock %}
+
+{% block content %}
+
+<section class="hero hero-short">
+    <div class="hero-inner">
+        <span class="hero-badge">Club</span>
+        {% if club.image %}
+            <img class="club-hero-img" src="{{ club.image.url }}" alt="{{ club.name }}">
+        {% else %}
+            <div class="club-hero-emoji">{{ club.emoji|default:'🏛️' }}</div>
+        {% endif %}
+        <h1>{{ club.name }}</h1>
+        <p>{{ club.description }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-inner">
+        <div class="club-detail-grid">
+
+            <!-- Left: Info -->
+            <div class="club-detail-main">
+
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h2 style="margin-bottom: 1.25rem; color: var(--navy);">About</h2>
+                    <p>{{ club.description }}</p>
+                </div>
+
+                <!-- Upcoming Events -->
+                <div class="card">
+                    <h2 style="margin-bottom: 1.25rem; color: var(--navy);">Upcoming Events</h2>
+                    {% if upcoming_events %}
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            {% for event in upcoming_events %}
+                                <div class="event-row">
+                                    <div class="event-icon icon-gold">📅</div>
+                                    <div>
+                                        <p class="event-title">{{ event.title }}</p>
+                                        <p class="event-meta">
+                                            {{ event.start_time|date:"M j, Y g:i A" }}
+                                            {% if event.location %}
+                                                · {{ event.location.building }} {{ event.location.room_num }}
+                                            {% endif %}
+                                            {% if event.point_value %}
+                                                · <span class="point-badge">+{{ event.point_value }} pts</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p style="color: var(--text-muted);">No upcoming events.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- Right: Sidebar -->
+            <div class="club-detail-sidebar">
+
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem; color: var(--navy);">Membership</h3>
+                    <div class="profile-stats" style="grid-template-columns: 1fr 1fr;">
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">{{ club.members.count }}</div>
+                            <div class="profile-stat-label">Members</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">{{ upcoming_events.count }}</div>
+                            <div class="profile-stat-label">Events</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        {% if is_member %}
+                            <span class="profile-role-badge" style="background: rgba(0,200,150,0.1); color: var(--teal);">✓ You're a member</span>
+                        {% else %}
+                            <p style="font-size: 0.875rem; color: var(--text-muted);">You are not a member of this club.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if club.officers.all %}
+                    <div class="card" style="margin-bottom: 1.5rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--navy);">Officers</h3>
+                        {% for officer in club.officers.all %}
+                            <div class="member-row">
+                                <div class="member-avatar">{{ officer.user.first_name|first|upper }}{{ officer.user.last_name|first|upper }}</div>
+                                <span>{{ officer }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if club.advisors.all %}
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem; color: var(--navy);">Advisors</h3>
+                        {% for advisor in club.advisors.all %}
+                            <div class="member-row">
+                                <div class="member-avatar">{{ advisor.user.first_name|first|upper }}{{ advisor.user.last_name|first|upper }}</div>
+                                <span>{{ advisor }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <a href="{% url 'clubhouse:club_list' %}" class="btn btn-secondary">← Back to Clubs</a>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

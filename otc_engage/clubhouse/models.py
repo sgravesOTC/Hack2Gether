@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 from account.models import Profile
 
 # Create your models here.
@@ -20,6 +21,17 @@ class Club(models.Model):
         related_name ='club_member',
         blank=True,
     )
+    slug = models.SlugField(max_length=60, unique=True, blank=True)
+    emoji = models.CharField(max_length=10, blank=True, default='🏛️')
+    image = models.ImageField(upload_to='club_images/', null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 class Location(models.Model):
     class Building(models.TextChoices):

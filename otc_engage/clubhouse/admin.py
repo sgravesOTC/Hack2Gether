@@ -3,9 +3,15 @@ from .models import Club, Location, Event, Roster, Survey
 
 @admin.register(Club)
 class ClubAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['name', 'emoji', 'slug']
     search_fields = ['name']
+    prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ['advisors', 'officers', 'members']
+    fieldsets = [
+        (None, {'fields': ['name', 'slug', 'description']}),
+        ('Icon', {'fields': ['emoji', 'image'], 'description': 'Choose an emoji OR upload an image. Image takes priority if both are set.'}),
+        ('Members', {'fields': ['advisors', 'officers', 'members']}),
+    ]
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):

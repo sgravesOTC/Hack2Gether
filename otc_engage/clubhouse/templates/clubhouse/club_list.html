@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Clubs | OTCPulse{% endblock %}
+
+{% block content %}
+
+<section class="hero hero-short">
+    <div class="hero-inner">
+        <span class="hero-badge">Campus Life</span>
+        <h1>Find Your <span class="highlight">Club</span></h1>
+        <p>Browse all clubs at Ozarks Tech and get involved.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-inner">
+
+        {% if clubs %}
+            <div class="card-grid">
+                {% for club in clubs %}
+                    <a href="{% url 'clubhouse:club_detail' club.slug %}" class="card card-link">
+                        {% if club.image %}
+                            <img class="club-icon-img" src="{{ club.image.url }}" alt="{{ club.name }}">
+                        {% else %}
+                            <div class="card-icon icon-teal">{{ club.emoji|default:'🏛️' }}</div>
+                        {% endif %}
+                        <h3>{{ club.name }}</h3>
+                        <p>{{ club.description|truncatewords:20 }}</p>
+                        <div class="club-meta">
+                            <span>{{ club.members.count }} member{{ club.members.count|pluralize }}</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
+            {% if clubs.has_other_pages %}
+                <div class="pagination">
+                    {% if clubs.has_previous %}
+                        <a href="?page={{ clubs.previous_page_number }}" class="btn btn-secondary">← Previous</a>
+                    {% endif %}
+                    <span class="page-info">Page {{ clubs.number }} of {{ clubs.paginator.num_pages }}</span>
+                    {% if clubs.has_next %}
+                        <a href="?page={{ clubs.next_page_number }}" class="btn btn-secondary">Next →</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+        {% else %}
+            <div class="empty-state">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🏛️</div>
+                <h3>No clubs yet</h3>
+                <p>Check back soon — clubs are being added.</p>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'account/base.html' %}
+
+{% block title %}Profile | OTC Engage{% endblock %}
+
+{% block content %}
+<section class="profile-card">
+    <h1>{{ user.username }}</h1>
+
+    <div class="profile-info">
+        <div class="info-row">
+            <span class="label">OTC Email</span>
+            <span class="value">{{ profile.otc_email }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="label">Role</span>
+            <span class="value">{{ profile.get_role_display }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="label">Points</span>
+            <span class="value">{{ profile.points }}</span>
+        </div>
+    </div>
+
+    <div class="profile-actions">
+        <form method="post" action="{% url 'account:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">Log Out</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

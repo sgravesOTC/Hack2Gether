@@ -31,4 +31,6 @@ class Profile(models.Model):
         default=Role.STUDENT,
     )
     image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
-    
+
+    def __str__(self):
+        return self.user.get_full_name() or self.user.username

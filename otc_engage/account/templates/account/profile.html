@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Profile | OTC Engage{% endblock %}
+{% block title %}Profile | OTCPulse{% endblock %}
 
 {% block content %}
 <div class="profile-wrapper">
@@ -54,6 +54,8 @@
             </div>
 
             <div class="profile-actions">
+                <a href="{% url 'account:edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+                <a href="{% url 'account:password_change' %}" class="btn btn-secondary">Change Password</a>
                 <form method="post" action="{% url 'account:logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-secondary">Log Out</button>

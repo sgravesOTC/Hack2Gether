@@ -1,5 +1,5 @@
 /* ============================================================
-   OTC ENGAGE — Main Stylesheet
+   OTCPulse — Main Stylesheet
    ============================================================ */
 
 /* === VARIABLES ============================================= */
@@ -509,6 +509,84 @@ main { flex: 1; }
     margin-top: 0.3rem;
 }
 
+.current-photo {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.current-photo img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+}
+
+.current-photo-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.25rem;
+}
+
+.clear-photo-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: #EF4444;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.clear-photo-label input[type="checkbox"] {
+    width: auto;
+    accent-color: #EF4444;
+    cursor: pointer;
+}
+
+/* === FILE UPLOAD =========================================== */
+.file-input-hidden {
+    display: none;
+}
+
+.file-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.file-upload-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--navy);
+    color: #fff !important;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--ease);
+    white-space: nowrap;
+}
+.file-upload-btn:hover { background: var(--navy-dark); }
+
+.file-name {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+}
+
 .field-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -517,6 +595,9 @@ main { flex: 1; }
 
 .field-submit {
     margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .field-submit .btn {

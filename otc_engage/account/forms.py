@@ -35,3 +35,24 @@ class ProfileRegistrationForm(forms.ModelForm):
         model = Profile
         fields = ['otc_email']
 
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ['first_name', 'last_name', 'email', 'username']
+
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        qs = User.objects.exclude(
+            id = self.instance.id
+        ).filter(
+            email=data
+        )
+        if qs.exists():
+            raise forms.ValidationError('Email already in use.')
+        return data
+
+class ProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['otc_email', 'image']  
+        

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}OTC Engage{% endblock %}</title>
+    <title>{% block title %}OTCPulse{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% block extra_head %}{% endblock %}
@@ -13,7 +13,7 @@
     <header class="site-header">
         <nav class="nav-container">
             <a href="/" class="nav-brand">
-                <span class="brand-otc">OTC</span><span class="brand-engage">Engage</span>
+                <span class="brand-otc">OTC</span><span class="brand-engage">Pulse</span>
             </a>
             <div class="nav-links">
                 {% if user.is_authenticated %}
@@ -45,7 +45,7 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-brand">
-                <span class="brand-otc">OTC</span><span class="brand-engage">Engage</span>
+                <span class="brand-otc">OTC</span><span class="brand-engage">Pulse</span>
             </div>
             <p class="footer-tagline">Your campus community, connected.</p>
             <div class="footer-links">

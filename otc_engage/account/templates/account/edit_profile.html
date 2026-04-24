@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Register | OTCPulse{% endblock %}
+{% block title %}Edit Profile | OTCPulse{% endblock %}
 
 {% block content %}
 <div class="auth-wrapper">
-    <div class="auth-card">
-        <h1>Create Account</h1>
-        <p class="auth-subtitle">Join your OTC campus community.</p>
+    <div class="auth-card" style="max-width: 560px;">
+        <h1>Edit Profile</h1>
+        <p class="auth-subtitle">Update your account information.</p>
 
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
             {% if user_form.errors or profile_form.errors %}
@@ -57,23 +57,39 @@
             </div>
 
             <div class="field">
-                <label for="{{ user_form.password.id_for_label }}">Password</label>
-                {{ user_form.password }}
-            </div>
+                <label>Profile Photo</label>
 
-            <div class="field">
-                <label for="{{ user_form.password2.id_for_label }}">Confirm Password</label>
-                {{ user_form.password2 }}
+                {% if request.user.profile.image %}
+                    <div class="current-photo">
+                        <img src="{{ request.user.profile.image.url }}" alt="Current photo">
+                        <div>
+                            <p class="current-photo-name">Current photo</p>
+                            <label class="clear-photo-label">
+                                <input type="checkbox" name="{{ profile_form.image.html_name }}-clear">
+                                Remove photo
+                            </label>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="file-upload-row">
+                    <label for="{{ profile_form.image.id_for_label }}" class="file-upload-btn">Choose Photo</label>
+                    <input type="file"
+                           name="{{ profile_form.image.html_name }}"
+                           id="{{ profile_form.image.id_for_label }}"
+                           accept="image/*"
+                           class="file-input-hidden"
+                           onchange="document.getElementById('file-name').textContent = this.files[0]?.name ?? 'No file selected'">
+                    <span id="file-name" class="file-name">No file selected</span>
+                </div>
+                <small>JPG or PNG. Replaces your current photo.</small>
             </div>
 
             <div class="field-submit">
-                <button type="submit" class="btn btn-primary">Create Account</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{% url 'account:profile' %}" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
-
-        <p class="auth-footer">
-            Already have an account? <a href="{% url 'account:login' %}">Log In</a>
-        </p>
     </div>
 </div>
 {% endblock %}

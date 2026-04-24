@@ -1,1 +1,1 @@
-# Hack2Gether
+# Hack2Gether 2026

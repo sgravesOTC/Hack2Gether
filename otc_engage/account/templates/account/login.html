@@ -1,0 +1,33 @@
+{% extends 'account/base.html' %}
+
+{% block title %}Log In | OTC Engage{% endblock %}
+
+{% block content %}
+<section class="auth-card">
+    <h1>Log In</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <p class="error">Invalid username or password.</p>
+        {% endif %}
+
+        <div class="field">
+            <label for="id_username">Username</label>
+            {{ form.username }}
+        </div>
+
+        <div class="field">
+            <label for="id_password">Password</label>
+            {{ form.password }}
+        </div>
+
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <button type="submit">Log In</button>
+    </form>
+
+    <p>Don't have an account? <a href="{% url 'account:register' %}">Register</a></p>
+</section>
+{% endblock %}

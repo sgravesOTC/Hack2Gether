@@ -1,5 +1,5 @@
 from django import forms
-from .models import Club
+from .models import Club, Event
 from account.models import Profile
 
 
@@ -47,3 +47,23 @@ class ClubCreateForm(forms.ModelForm):
         if email and not email.endswith('@otc.edu'):
             raise forms.ValidationError('Must be an @otc.edu email address.')
         return email
+    
+class CreateEventForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = ['title', 'start_time', 'end_time', 'point_value']
+        widgets = {
+            'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'end_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['start_time'].input_formats = ['%Y-%m-%dT%H:%M']
+        self.fields['end_time'].input_formats = ['%Y-%m-%dT%H:%M']
+
+    def clean_point_value(self):
+        point_value = self.cleaned_data.get('point_value', 0)
+        if point_value > 10:
+            raise forms.ValidationError('Please submit a request to Student Engagement to set a value higher than 10.')
+        return point_value

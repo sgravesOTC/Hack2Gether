@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, ProfileRegistrationForm, UserEditForm, ProfileEditForm
+from bulletin_board.models import Request
 
 
 def register(request):
@@ -28,7 +29,22 @@ def register(request):
 @login_required
 def profile(request):
     profile = request.user.profile
-    return render(request, 'account/profile.html', {'profile': profile})
+    if profile.role == profile.Role.ADMIN:
+        requests = Request.objects.order_by('complete', 'due_date')
+    else:
+        clubs = profile.club_officer.all() | profile.faculty_advisor.all()
+        requests = Request.objects.filter(club__in=clubs).order_by('complete', 'due_date')
+
+    club_count = (
+        profile.club_member.all() | profile.faculty_advisor.all()
+    ).distinct().count()
+
+    return render(request, 'account/profile.html', {
+        'profile': profile,
+        'requests': requests,
+        'is_admin': profile.role == profile.Role.ADMIN,
+        'club_count': club_count,
+    })
 
 @login_required
 def edit_profile(request):

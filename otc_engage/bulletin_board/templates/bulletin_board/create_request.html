@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}New Request | OTCPulse{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 560px;">
+        <h1>Submit a Request</h1>
+        <p class="auth-subtitle">Requests must be submitted at least one week before they are needed.</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <ul class="error-list">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div class="field">
+                <label for="{{ form.club.id_for_label }}">Club</label>
+                {{ form.club }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.type.id_for_label }}">Request Type</label>
+                {{ form.type }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.notes.id_for_label }}">Notes</label>
+                {{ form.notes }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.due_date.id_for_label }}">Date Needed</label>
+                {{ form.due_date }}
+            </div>
+
+            <div class="field-submit">
+                <button type="submit" class="btn btn-primary">Submit Request</button>
+                <a href="{% url 'bulletin_board:request_list' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

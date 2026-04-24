@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Events | OTCPulse{% endblock %}
+
+{% block content %}
+
+<section class="hero hero-short">
+    <div class="hero-inner">
+        <span class="hero-badge">Campus Life</span>
+        <h1>Upcoming <span class="highlight">Events</span></h1>
+        <p>See what's happening across all clubs on campus.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-inner">
+        {% if events %}
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                {% for event in events %}
+                    <div class="card">
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
+                                    <span style="font-weight: 600; color: var(--navy);">{{ event.title }}</span>
+                                    <span class="profile-role-badge" style="background: rgba(0,100,200,0.1); color: var(--navy);">{{ event.club.name }}</span>
+                                    {% if event.point_value %}
+                                        <span class="point-badge">+{{ event.point_value }} pts</span>
+                                    {% endif %}
+                                </div>
+                                <p class="event-meta">
+                                    {{ event.start_time|date:"M j, Y g:i A" }}
+                                    {% if event.end_time %}
+                                        &nbsp;–&nbsp; {{ event.end_time|date:"g:i A" }}
+                                    {% endif %}
+                                    {% if event.location %}
+                                        &nbsp;·&nbsp; {{ event.location.building }} {{ event.location.room_num }}
+                                        {% if event.location.room_name %}
+                                            ({{ event.location.room_name }})
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <a href="{% url 'clubhouse:club_detail' event.club.slug %}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem; flex-shrink: 0;">View Club</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                <h3>No upcoming events</h3>
+                <p>Check back later or browse clubs to stay in the loop.</p>
+                <a href="{% url 'clubhouse:club_list' %}" class="btn btn-primary" style="margin-top: 1rem;">Browse Clubs</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

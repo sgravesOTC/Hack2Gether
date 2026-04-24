@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from clubhouse.models import Club, Location, Event
 
 class Announcement(models.Model):
@@ -23,6 +24,12 @@ class Request(models.Model):
     complete = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    due_date = models.DateTimeField(default=timezone.now)
+    class Approval(models.TextChoices):
+        DENIED = 'X','Denied'
+        APPROVED = 'O','Approved'
+        PENDING = '-','Pending'
+    approval_status = models.CharField(max_length=1,choices=Approval.choices, default=Approval.PENDING)
 
 class Reservation(models.Model):
     club = models.ForeignKey(

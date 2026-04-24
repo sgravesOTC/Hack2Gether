@@ -1,80 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}Profile | OTCPulse{% endblock %}
+{% block title %}Requests | OTCPulse{% endblock %}
 
 {% block content %}
-<div class="profile-wrapper">
-    <div class="profile-card">
-        <div class="profile-banner"></div>
-        <div class="profile-body">
 
-            {% if profile.image %}
-                <img class="profile-avatar profile-avatar-img" src="{{ profile.image.url }}" alt="{{ user.username }}">
-            {% else %}
-                <div class="profile-avatar">
-                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
-                </div>
-            {% endif %}
-
-            <p class="profile-name">{{ user.get_full_name|default:user.username }}</p>
-            <span class="profile-role-badge">{{ profile.get_role_display }}</span>
-
-            <div class="profile-stats">
-                <div class="profile-stat">
-                    <div class="profile-stat-value">{{ profile.points }}</div>
-                    <div class="profile-stat-label">Points</div>
-                </div>
-                <div class="profile-stat">
-                    <div class="profile-stat-value">{{ club_count }}</div>
-                    <div class="profile-stat-label">Clubs</div>
-                </div>
-                <div class="profile-stat">
-                    <div class="profile-stat-value">{{ user.profile.rosters.count }}</div>
-                    <div class="profile-stat-label">Events</div>
-                </div>
-            </div>
-
-            <div class="profile-info">
-                <div class="info-row">
-                    <span class="label">Username</span>
-                    <span class="value">{{ user.username }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">OTC Email</span>
-                    <span class="value">{{ profile.otc_email }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Email</span>
-                    <span class="value">{{ user.email }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Member Since</span>
-                    <span class="value">{{ user.date_joined|date:"F Y" }}</span>
-                </div>
-            </div>
-
-            <div class="profile-actions">
-                <a href="{% url 'account:edit_profile' %}" class="btn btn-primary">Edit Profile</a>
-                <a href="{% url 'account:password_change' %}" class="btn btn-secondary">Change Password</a>
-                <form method="post" action="{% url 'account:logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-secondary">Log Out</button>
-                </form>
-            </div>
-
-        </div>
+<section class="hero hero-short">
+    <div class="hero-inner">
+        <span class="hero-badge">Bulletin Board</span>
+        <h1>Club <span class="highlight">Requests</span></h1>
+        <p>Support requests submitted by club officers.</p>
     </div>
-</div>
+</section>
 
-{% if clubs %}
 <section class="section">
     <div class="section-inner">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
-        
-            <h2 style="color: var(--navy); margin: 0;">All Requests</h2>
-            </div>
 
-            {% if requests %}
+        <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+            <a href="{% url 'bulletin_board:create_request' %}" class="btn btn-primary">+ New Request</a>
+        </div>
+
+        {% if requests %}
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 {% for req in requests %}
                     <div class="card" style="{% if req.complete %}opacity: 0.6;{% endif %}">
@@ -99,7 +44,7 @@
                                     &nbsp;·&nbsp; Submitted {{ req.created|date:"M j, Y" }}
                                 </p>
                             </div>
-                            {% if is_admin %}
+                            {% if request.user.profile.role == 'ADMIN' %}
                             <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
                                 <form method="post" action="{% url 'bulletin_board:approve_request' req.pk %}">
                                     {% csrf_token %}
@@ -115,15 +60,15 @@
                     </div>
                 {% endfor %}
             </div>
-        
         {% else %}
             <div class="empty-state">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
                 <h3>No requests yet</h3>
+                <p>Submit a request using the button above.</p>
             </div>
         {% endif %}
+
     </div>
 </section>
-{% endif %}
 
 {% endblock %}

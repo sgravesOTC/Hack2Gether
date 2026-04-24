@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit {{ club.name }} | OTCPulse{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 560px;">
+        <h1>Edit Club</h1>
+        <p class="auth-subtitle">{{ club.name }}</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <ul class="error-list">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div class="field">
+                <label for="{{ form.name.id_for_label }}">Club Name</label>
+                {{ form.name }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.description.id_for_label }}">Description</label>
+                {{ form.description }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.emoji.id_for_label }}">Emoji Icon</label>
+                {{ form.emoji }}
+                <small>Paste any emoji to use as the club icon.</small>
+            </div>
+
+            <div class="field">
+                <label>Club Photo</label>
+                {% if club.image %}
+                    <div class="current-photo">
+                        <img src="{{ club.image.url }}" alt="Current photo">
+                        <div>
+                            <p class="current-photo-name">Current photo</p>
+                            <label class="clear-photo-label">
+                                <input type="checkbox" name="{{ form.image.html_name }}-clear">
+                                Remove photo
+                            </label>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="file-upload-row">
+                    <label for="{{ form.image.id_for_label }}" class="file-upload-btn">Choose Photo</label>
+                    <input type="file"
+                           name="{{ form.image.html_name }}"
+                           id="{{ form.image.id_for_label }}"
+                           accept="image/*"
+                           class="file-input-hidden"
+                           onchange="document.getElementById('file-name').textContent = this.files[0]?.name ?? 'No file selected'">
+                    <span id="file-name" class="file-name">No file selected</span>
+                </div>
+                <small>Image takes priority over emoji if both are set.</small>
+            </div>
+
+            <div class="field-submit">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{% url 'clubhouse:club_detail' club.slug %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

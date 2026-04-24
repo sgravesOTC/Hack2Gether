@@ -1,71 +1,79 @@
-{% extends 'account/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Register | OTC Engage{% endblock %}
 
 {% block content %}
-<section class="auth-card">
-    <h1>Create Account</h1>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h1>Create Account</h1>
+        <p class="auth-subtitle">Join your OTC campus community.</p>
 
-    <form method="post">
-        {% csrf_token %}
+        <form method="post">
+            {% csrf_token %}
 
-        {% if user_form.errors or profile_form.errors %}
-            <ul class="error-list">
-                {% for field in user_form %}
-                    {% for error in field.errors %}
-                        <li class="error">{{ error }}</li>
+            {% if user_form.errors or profile_form.errors %}
+                <ul class="error-list">
+                    {% for field in user_form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
                     {% endfor %}
-                {% endfor %}
-                {% for error in user_form.non_field_errors %}
-                    <li class="error">{{ error }}</li>
-                {% endfor %}
-                {% for field in profile_form %}
-                    {% for error in field.errors %}
-                        <li class="error">{{ error }}</li>
+                    {% for error in user_form.non_field_errors %}
+                        <li>{{ error }}</li>
                     {% endfor %}
-                {% endfor %}
-            </ul>
-        {% endif %}
+                    {% for field in profile_form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
 
-        <div class="field">
-            <label for="{{ user_form.username.id_for_label }}">Username</label>
-            {{ user_form.username }}
-        </div>
+            <div class="field-group">
+                <div class="field">
+                    <label for="{{ user_form.first_name.id_for_label }}">First Name</label>
+                    {{ user_form.first_name }}
+                </div>
+                <div class="field">
+                    <label for="{{ user_form.last_name.id_for_label }}">Last Name</label>
+                    {{ user_form.last_name }}
+                </div>
+            </div>
 
-        <div class="field">
-            <label for="{{ user_form.first_name.id_for_label }}">First Name</label>
-            {{ user_form.first_name }}
-        </div>
+            <div class="field">
+                <label for="{{ user_form.username.id_for_label }}">Username</label>
+                {{ user_form.username }}
+            </div>
 
-        <div class="field">
-            <label for="{{ user_form.last_name.id_for_label }}">Last Name</label>
-            {{ user_form.last_name }}
-        </div>
+            <div class="field">
+                <label for="{{ user_form.email.id_for_label }}">Personal Email</label>
+                {{ user_form.email }}
+            </div>
 
-        <div class="field">
-            <label for="{{ user_form.email.id_for_label }}">Email</label>
-            {{ user_form.email }}
-        </div>
+            <div class="field">
+                <label for="{{ profile_form.otc_email.id_for_label }}">OTC Email</label>
+                {{ profile_form.otc_email }}
+                <small>Must be your @otc.edu address.</small>
+            </div>
 
-        <div class="field">
-            <label for="{{ profile_form.otc_email.id_for_label }}">OTC Email</label>
-            {{ profile_form.otc_email }}
-            <small>Must be your @otc.edu address.</small>
-        </div>
+            <div class="field">
+                <label for="{{ user_form.password.id_for_label }}">Password</label>
+                {{ user_form.password }}
+            </div>
 
-        <div class="field">
-            <label for="{{ user_form.password.id_for_label }}">Password</label>
-            {{ user_form.password }}
-        </div>
+            <div class="field">
+                <label for="{{ user_form.password2.id_for_label }}">Confirm Password</label>
+                {{ user_form.password2 }}
+            </div>
 
-        <div class="field">
-            <label for="{{ user_form.password2.id_for_label }}">Confirm Password</label>
-            {{ user_form.password2 }}
-        </div>
+            <div class="field-submit">
+                <button type="submit" class="btn btn-primary">Create Account</button>
+            </div>
+        </form>
 
-        <button type="submit">Register</button>
-    </form>
-
-    <p>Already have an account? <a href="{% url 'account:login' %}">Log In</a></p>
-</section>
+        <p class="auth-footer">
+            Already have an account? <a href="{% url 'account:login' %}">Log In</a>
+        </p>
+    </div>
+</div>
 {% endblock %}

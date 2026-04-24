@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}OTC Engage — Your Campus Community{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+    <!-- ── Authenticated: Welcome ── -->
+    <section class="hero hero-short">
+        <div class="hero-inner">
+            <span class="hero-badge">Welcome back</span>
+            <h1>Hey, <span class="highlight">{{ user.first_name|default:user.username }}</span> 👋</h1>
+            <p>Here's what's happening across campus.</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-inner">
+            <div class="card-grid">
+
+                <a href="{% url 'account:profile' %}" class="card card-link">
+                    <div class="card-icon icon-gold">👤</div>
+                    <h3>My Profile</h3>
+                    <p>View your points, role, and account details.</p>
+                </a>
+
+                <div class="card card-coming-soon">
+                    <div class="card-icon icon-teal">🏛️</div>
+                    <h3>Clubs</h3>
+                    <p>Browse and join clubs on campus.</p>
+                    <span class="coming-soon-tag">Coming Soon</span>
+                </div>
+
+                <div class="card card-coming-soon">
+                    <div class="card-icon icon-purple">📅</div>
+                    <h3>Events</h3>
+                    <p>Check out upcoming events and earn points for attending.</p>
+                    <span class="coming-soon-tag">Coming Soon</span>
+                </div>
+
+                <div class="card card-coming-soon">
+                    <div class="card-icon icon-navy">📋</div>
+                    <h3>Bulletin Board</h3>
+                    <p>Announcements, requests, and reservations.</p>
+                    <span class="coming-soon-tag">Coming Soon</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+{% else %}
+
+    <!-- ── Guest: Hero + CTA ── -->
+    <section class="hero">
+        <div class="hero-inner">
+            <span class="hero-badge">Ozarks Tech</span>
+            <h1>Your campus.<br><span class="highlight">More connected.</span></h1>
+            <p>OTC Engage brings clubs, events, and your campus community together in one place. Earn points, join clubs, and stay in the loop.</p>
+            <div class="hero-actions">
+                <a href="{% url 'account:register' %}" class="btn btn-primary btn-hero">Get Started</a>
+                <a href="{% url 'account:login' %}" class="btn-hero-outline">Log In</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Stats ── -->
+    <div class="stats-strip">
+        <div class="stats-inner">
+            <div class="stat-item">
+                <div class="stat-number">20<span>+</span></div>
+                <div class="stat-label">Active Clubs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100<span>+</span></div>
+                <div class="stat-label">Events Per Year</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Points to Earn</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Place for All of It</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Features ── -->
+    <section class="section section-alt">
+        <div class="section-inner">
+            <div class="section-header">
+                <span class="section-tag">What You Get</span>
+                <h2>Everything campus, in one spot</h2>
+                <p>No more checking five different places. OTC Engage connects students, clubs, and events under one roof.</p>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon icon-teal">🏛️</div>
+                    <h3>Join Clubs</h3>
+                    <p>Find a club that fits you, connect with other members, and get involved on campus.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon icon-gold">📅</div>
+                    <h3>Attend Events</h3>
+                    <p>See what's happening, RSVP, and rack up points every time you show up.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon icon-purple">⭐</div>
+                    <h3>Earn Points</h3>
+                    <p>Get rewarded for being involved. Points track your engagement across the platform.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon icon-navy">📋</div>
+                    <h3>Bulletin Board</h3>
+                    <p>Announcements, room reservations, and support requests — all in one place.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Final CTA ── -->
+    <section class="section cta-section">
+        <div class="section-inner cta-inner">
+            <h2>Ready to get involved?</h2>
+            <p>Create your free account and start connecting with your campus community today.</p>
+            <a href="{% url 'account:register' %}" class="btn btn-primary btn-hero">Create Your Account</a>
+        </div>
+    </section>
+
+{% endif %}
+
+{% endblock %}

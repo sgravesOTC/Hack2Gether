@@ -1,33 +1,66 @@
-{% extends 'account/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Profile | OTC Engage{% endblock %}
 
 {% block content %}
-<section class="profile-card">
-    <h1>{{ user.username }}</h1>
+<div class="profile-wrapper">
+    <div class="profile-card">
+        <div class="profile-banner"></div>
+        <div class="profile-body">
 
-    <div class="profile-info">
-        <div class="info-row">
-            <span class="label">OTC Email</span>
-            <span class="value">{{ profile.otc_email }}</span>
-        </div>
+            {% if profile.image %}
+                <img class="profile-avatar profile-avatar-img" src="{{ profile.image.url }}" alt="{{ user.username }}">
+            {% else %}
+                <div class="profile-avatar">
+                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                </div>
+            {% endif %}
 
-        <div class="info-row">
-            <span class="label">Role</span>
-            <span class="value">{{ profile.get_role_display }}</span>
-        </div>
+            <p class="profile-name">{{ user.get_full_name|default:user.username }}</p>
+            <span class="profile-role-badge">{{ profile.get_role_display }}</span>
 
-        <div class="info-row">
-            <span class="label">Points</span>
-            <span class="value">{{ profile.points }}</span>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-value">{{ profile.points }}</div>
+                    <div class="profile-stat-label">Points</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">{{ user.profile.club_member.count }}</div>
+                    <div class="profile-stat-label">Clubs</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">{{ user.profile.rosters.count }}</div>
+                    <div class="profile-stat-label">Events</div>
+                </div>
+            </div>
+
+            <div class="profile-info">
+                <div class="info-row">
+                    <span class="label">Username</span>
+                    <span class="value">{{ user.username }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">OTC Email</span>
+                    <span class="value">{{ profile.otc_email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Email</span>
+                    <span class="value">{{ user.email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Member Since</span>
+                    <span class="value">{{ user.date_joined|date:"F Y" }}</span>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <form method="post" action="{% url 'account:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary">Log Out</button>
+                </form>
+            </div>
+
         </div>
     </div>
-
-    <div class="profile-actions">
-        <form method="post" action="{% url 'account:logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-secondary">Log Out</button>
-        </form>
-    </div>
-</section>
+</div>
 {% endblock %}

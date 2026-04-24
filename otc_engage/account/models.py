@@ -30,4 +30,5 @@ class Profile(models.Model):
         choices=Role.choices,
         default=Role.STUDENT,
     )
+    image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
     

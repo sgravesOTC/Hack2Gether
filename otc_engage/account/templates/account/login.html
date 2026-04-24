@@ -1,33 +1,42 @@
-{% extends 'account/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Log In | OTC Engage{% endblock %}
 
 {% block content %}
-<section class="auth-card">
-    <h1>Log In</h1>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h1>Welcome back</h1>
+        <p class="auth-subtitle">Log in to your OTC Engage account.</p>
 
-    <form method="post">
-        {% csrf_token %}
+        <form method="post">
+            {% csrf_token %}
 
-        {% if form.errors %}
-            <p class="error">Invalid username or password.</p>
-        {% endif %}
+            {% if form.errors %}
+                <ul class="error-list">
+                    <li>Invalid username or password. Please try again.</li>
+                </ul>
+            {% endif %}
 
-        <div class="field">
-            <label for="id_username">Username</label>
-            {{ form.username }}
-        </div>
+            <div class="field">
+                <label for="id_username">Username</label>
+                {{ form.username }}
+            </div>
 
-        <div class="field">
-            <label for="id_password">Password</label>
-            {{ form.password }}
-        </div>
+            <div class="field">
+                <label for="id_password">Password</label>
+                {{ form.password }}
+            </div>
 
-        <input type="hidden" name="next" value="{{ next }}">
+            <input type="hidden" name="next" value="{{ next }}">
 
-        <button type="submit">Log In</button>
-    </form>
+            <div class="field-submit">
+                <button type="submit" class="btn btn-primary">Log In</button>
+            </div>
+        </form>
 
-    <p>Don't have an account? <a href="{% url 'account:register' %}">Register</a></p>
-</section>
+        <p class="auth-footer">
+            Don't have an account? <a href="{% url 'account:register' %}">Get Started</a>
+        </p>
+    </div>
+</div>
 {% endblock %}

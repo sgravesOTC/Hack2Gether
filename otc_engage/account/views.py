@@ -23,4 +23,5 @@ def register(request):
     )
 
 def profile(request):
-    return render(request, 'account/profile.html')
+    profile = request.user.profile
+    return render(request, 'account/profile.html', {'profile':profile})

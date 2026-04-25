@@ -15,7 +15,7 @@
 <section class="section">
     <div class="section-inner">
 
-        <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+        <div class="flex-end-bar">
             <a href="{% url 'clubhouse:club_create' %}" class="btn btn-primary">+ Create Club</a>
         </div>
 
@@ -24,9 +24,9 @@
                 {% for club in clubs %}
                     <a href="{% url 'clubhouse:club_detail' club.slug %}" class="card card-link" style="position: relative;">
                         {% if is_admin and club.denied %}
-                            <span class="profile-role-badge" style="position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(200,0,0,0.1); color: #b91c1c;">Denied</span>
+                            <span class="profile-role-badge badge-red" style="position:absolute;top:0.75rem;right:0.75rem;">Denied</span>
                         {% elif is_admin and not club.approved %}
-                            <span class="profile-role-badge" style="position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(255,160,0,0.15); color: #b45309;">Pending Approval</span>
+                            <span class="profile-role-badge badge-gold" style="position:absolute;top:0.75rem;right:0.75rem;">Pending Approval</span>
                         {% endif %}
                         {% if club.image %}
                             <img class="club-icon-img" src="{{ club.image.url }}" alt="{{ club.name }}">
@@ -56,7 +56,7 @@
 
         {% else %}
             <div class="empty-state">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🏛️</div>
+                <div class="auth-success-icon">🏛️</div>
                 <h3>No clubs yet</h3>
                 <p>Check back soon — clubs are being added.</p>
             </div>

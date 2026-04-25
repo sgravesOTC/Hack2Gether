@@ -10,6 +10,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Club, Event, Attendance, SurveyQuestion, Survey, SurveyResponse
 from .forms import ClubEditForm, ClubCreateForm, CreateEventForm, NewRequestFormSet, SurveyQuestionFormSet, SurveySubmitForm
 from django.http import HttpResponse
+from bulletin_board.models import Request as BulletinRequest
+from account.models import Profile
 
 
 @login_required
@@ -247,7 +249,6 @@ def create_event(request, slug):
     if not can_edit:
         raise PermissionDenied
 
-    from bulletin_board.models import Request as BulletinRequest  # local to avoid circular import
 
     form = CreateEventForm(data=request.POST or None, club=club)
     request_formset = NewRequestFormSet(data=request.POST or None, prefix='req')
@@ -348,8 +349,6 @@ def _can_edit_club(profile, club):
 
 @login_required
 def event_checkin_terminal(request, pk):
-    from account.models import Profile
-
     event = get_object_or_404(Event, pk=pk)
     if not _can_edit_club(request.user.profile, event.club):
         raise PermissionDenied
@@ -421,7 +420,6 @@ def submit_event(request, pk):
     if request.method == 'POST' and event.status == Event.Status.DRAFT:
         event.status = Event.Status.SUBMITTED
         event.save()
-        from bulletin_board.models import Request as BulletinRequest
         BulletinRequest.objects.create(
             club=event.club,
             type=BulletinRequest.Type.OTHER,
@@ -639,8 +637,6 @@ def survey_results(request, pk):
 
 @login_required
 def leaderboard(request):
-    from account.models import Profile
-
     # distinct=True avoids inflated totals from the M2M join
     clubs = (
         Club.objects.filter(approved=True, denied=False)

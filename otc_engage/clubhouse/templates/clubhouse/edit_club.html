@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="auth-wrapper">
-    <div class="auth-card" style="max-width: 560px;">
+    <div class="auth-card auth-card-lg">
         <h1>Edit Club</h1>
         <p class="auth-subtitle">{{ club.name }}</p>
 
@@ -66,7 +66,7 @@
                     {{ form.officers }}
                 </div>
                 {% if not form.officers.field.queryset.exists %}
-                    <p style="font-size: 0.875rem; color: var(--text-muted);">No students or club officers found.</p>
+                    <p class="text-muted-sm">No students or club officers found.</p>
                 {% endif %}
             </div>
 
@@ -76,7 +76,7 @@
                     {{ form.advisors }}
                 </div>
                 {% if not form.advisors.field.queryset.exists %}
-                    <p style="font-size: 0.875rem; color: var(--text-muted);">No faculty advisors found.</p>
+                    <p class="text-muted-sm">No faculty advisors found.</p>
                 {% endif %}
             </div>
 

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="section">
-  <div class="section-inner" style="max-width:720px">
+  <div class="section-inner section-inner-sm">
     <h1 style="color:var(--navy);font-size:1.5rem;font-weight:800;margin-bottom:0.25rem">Survey Results</h1>
-    <p style="color:var(--text-muted);margin-bottom:0.5rem">{{ event.title }}</p>
+    <p class="text-muted-sm" style="margin-bottom:0.5rem">{{ event.title }}</p>
     <p style="margin-bottom:2rem"><span class="point-badge">{{ total_submissions }} submission{{ total_submissions|pluralize }}</span></p>
     {% for r in results %}
-      <div class="card" style="margin-bottom:1.25rem">
+      <div class="card card-mb">
         <p style="font-weight:700;color:var(--navy);margin-bottom:0.75rem">{{ r.question.prompt }}</p>
         {% if r.type == 'text' %}
           {% if r.answers %}
@@ -14,7 +14,7 @@
               <p style="background:var(--bg);border-radius:8px;padding:0.6rem 0.9rem;margin-bottom:0.5rem;font-size:0.9rem;color:var(--text)">{{ ans }}</p>
             {% endfor %}
           {% else %}
-            <p style="color:var(--text-muted);font-size:0.9rem">No responses yet.</p>
+            <p class="text-muted-sm">No responses yet.</p>
           {% endif %}
         {% elif r.type == 'stars' %}
           <p style="font-size:1.75rem;font-weight:800;color:var(--gold)">{{ r.avg }}★ <span style="font-size:1rem;color:var(--text-muted);font-weight:400">avg from {{ r.total }} response{{ r.total|pluralize }}</span></p>
@@ -32,7 +32,7 @@
         {% endif %}
       </div>
     {% empty %}
-      <p style="color:var(--text-muted)">No questions configured for this event.</p>
+      <p class="text-muted-sm">No questions configured for this event.</p>
     {% endfor %}
     <a href="{% url 'clubhouse:club_detail' event.club.slug %}" class="btn btn-secondary">Back to Club</a>
   </div>

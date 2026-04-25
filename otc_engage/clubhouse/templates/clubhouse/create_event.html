@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="auth-wrapper">
-    <div class="auth-card" style="max-width: 560px;">
+    <div class="auth-card auth-card-lg">
         <h1>Create an Event</h1>
         <p class="auth-subtitle">for {{ club.name }}</p>
 
@@ -47,13 +47,13 @@
             <div class="field">
                 <label for="{{ form.point_value.id_for_label }}">Point Value</label>
                 {{ form.point_value }}
-                <small style="color: var(--text-muted);">Max 10 — contact Student Engagement for higher values.</small>
+                <small class="text-muted-sm">Max 10 — contact Student Engagement for higher values.</small>
             </div>
 
             <!-- Support Requests -->
-            <div class="card" style="margin: 1.5rem 0; border-left: 3px solid var(--gold);">
+            <div class="card card-gold-left-border" style="margin: 1.5rem 0;">
                 <p style="font-weight: 600; margin-bottom: 0.25rem; color: var(--navy);">Support Requests <span style="font-weight: normal; color: var(--text-muted);">(optional)</span></p>
-                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Add requests for this event. Due dates will be set to the event start time.</p>
+                <p class="text-muted-sm" style="margin-bottom: 1rem;">Add requests for this event. Due dates will be set to the event start time.</p>
 
                 {{ request_formset.management_form }}
                 <div id="request-formset">
@@ -71,13 +71,13 @@
                     {% endfor %}
                 </div>
 
-                <button type="button" id="add-request" class="btn btn-secondary" style="font-size: 0.85rem; margin-top: 0.5rem;">+ Add Another Request</button>
+                <button type="button" id="add-request" class="btn btn-secondary btn-sm" style="margin-top: 0.5rem;">+ Add Another Request</button>
 
                 {% if form.related_request.field.queryset.exists %}
                 <div class="field" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
                     <label for="{{ form.related_request.id_for_label }}">Or Update Existing Request's Due Date</label>
                     {{ form.related_request }}
-                    <small style="color: var(--text-muted);">{{ form.related_request.help_text }}</small>
+                    <small class="text-muted-sm">{{ form.related_request.help_text }}</small>
                 </div>
                 {% endif %}
             </div>

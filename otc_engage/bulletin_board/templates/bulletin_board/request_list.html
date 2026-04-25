@@ -15,32 +15,32 @@
 <section class="section">
     <div class="section-inner">
 
-        <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+        <div class="flex-end-bar">
             <a href="{% url 'bulletin_board:create_request' %}" class="btn btn-primary">+ New Request</a>
         </div>
 
         {% if requests %}
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: start;">
+            <div class="request-kanban">
 
                 <!-- Pending -->
                 <div>
-                    <h3 style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #b45309; margin-bottom: 0.75rem; padding-bottom: 0.4rem; border-bottom: 2px solid rgba(255,160,0,0.3);">Pending</h3>
+                    <h3 class="kanban-col-title kanban-col-title-pending">Pending</h3>
                     {% for req in requests %}
                         {% if req.approval_status == '-' %}
-                            <div style="padding: 0.65rem 0.75rem; border-radius: 6px; background: var(--bg); margin-bottom: 0.5rem;">
-                                <p style="font-weight: 600; font-size: 0.875rem; color: var(--navy); margin-bottom: 0.2rem;">{{ req.club.name }} · {{ req.get_type_display }}</p>
-                                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">{{ req.notes }}</p>
-                                <p class="event-meta" style="font-size: 0.75rem;">Due {{ req.due_date|date:"M j, Y" }}</p>
-                                {% if req.complete %}<span class="profile-role-badge" style="background: rgba(0,200,150,0.1); color: var(--teal); font-size: 0.7rem;">Complete</span>{% endif %}
+                            <div class="request-card">
+                                <p class="request-card-title">{{ req.club.name }} · {{ req.get_type_display }}</p>
+                                <p class="request-card-notes">{{ req.notes }}</p>
+                                <p class="event-meta request-card-due">Due {{ req.due_date|date:"M j, Y" }}</p>
+                                {% if req.complete %}<span class="profile-role-badge badge-teal badge-sm">Complete</span>{% endif %}
                                 {% if is_admin %}
-                                <div style="display: flex; gap: 0.4rem; margin-top: 0.5rem;">
+                                <div class="request-action-row">
                                     <form method="post" action="{% url 'bulletin_board:approve_request' req.pk %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">Approve</button>
+                                        <button type="submit" class="btn btn-primary btn-xs">Approve</button>
                                     </form>
                                     <form method="post" action="{% url 'bulletin_board:deny_request' req.pk %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; color: #b91c1c;">Deny</button>
+                                        <button type="submit" class="btn btn-secondary btn-xs btn-danger-text">Deny</button>
                                     </form>
                                 </div>
                                 {% endif %}
@@ -51,14 +51,14 @@
 
                 <!-- Approved -->
                 <div>
-                    <h3 style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--teal); margin-bottom: 0.75rem; padding-bottom: 0.4rem; border-bottom: 2px solid rgba(0,200,150,0.3);">Approved</h3>
+                    <h3 class="kanban-col-title kanban-col-title-approved">Approved</h3>
                     {% for req in requests %}
                         {% if req.approval_status == 'O' %}
-                            <div style="padding: 0.65rem 0.75rem; border-radius: 6px; background: var(--bg); margin-bottom: 0.5rem;">
-                                <p style="font-weight: 600; font-size: 0.875rem; color: var(--navy); margin-bottom: 0.2rem;">{{ req.club.name }} · {{ req.get_type_display }}</p>
-                                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">{{ req.notes }}</p>
-                                <p class="event-meta" style="font-size: 0.75rem;">Due {{ req.due_date|date:"M j, Y" }}</p>
-                                {% if req.complete %}<span class="profile-role-badge" style="background: rgba(0,200,150,0.1); color: var(--teal); font-size: 0.7rem;">Complete</span>{% endif %}
+                            <div class="request-card">
+                                <p class="request-card-title">{{ req.club.name }} · {{ req.get_type_display }}</p>
+                                <p class="request-card-notes">{{ req.notes }}</p>
+                                <p class="event-meta request-card-due">Due {{ req.due_date|date:"M j, Y" }}</p>
+                                {% if req.complete %}<span class="profile-role-badge badge-teal badge-sm">Complete</span>{% endif %}
                             </div>
                         {% endif %}
                     {% endfor %}
@@ -66,13 +66,13 @@
 
                 <!-- Denied -->
                 <div>
-                    <h3 style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #b91c1c; margin-bottom: 0.75rem; padding-bottom: 0.4rem; border-bottom: 2px solid rgba(200,0,0,0.2);">Denied</h3>
+                    <h3 class="kanban-col-title kanban-col-title-denied">Denied</h3>
                     {% for req in requests %}
                         {% if req.approval_status == 'X' %}
-                            <div style="padding: 0.65rem 0.75rem; border-radius: 6px; background: var(--bg); margin-bottom: 0.5rem;">
-                                <p style="font-weight: 600; font-size: 0.875rem; color: var(--navy); margin-bottom: 0.2rem;">{{ req.club.name }} · {{ req.get_type_display }}</p>
-                                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">{{ req.notes }}</p>
-                                <p class="event-meta" style="font-size: 0.75rem;">Due {{ req.due_date|date:"M j, Y" }}</p>
+                            <div class="request-card">
+                                <p class="request-card-title">{{ req.club.name }} · {{ req.get_type_display }}</p>
+                                <p class="request-card-notes">{{ req.notes }}</p>
+                                <p class="event-meta request-card-due">Due {{ req.due_date|date:"M j, Y" }}</p>
                             </div>
                         {% endif %}
                     {% endfor %}
@@ -81,7 +81,7 @@
             </div>
         {% else %}
             <div class="empty-state">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+                <div class="auth-success-icon">📋</div>
                 <h3>No requests yet</h3>
                 <p>Submit a request using the button above.</p>
             </div>

@@ -7,68 +7,68 @@
     <div class="hero-inner">
         <span class="hero-badge">{{ event.club.name }}</span>
         <h1>{{ event.title }}</h1>
-        <p style="color: var(--text-muted);">
+        <p class="event-meta">
             {{ event.start_time|date:"M j, Y" }} &middot; {{ event.start_time|date:"g:i A" }} – {{ event.end_time|date:"g:i A" }}
         </p>
     </div>
 </section>
 
 <section class="section">
-    <div class="section-inner" style="max-width: 720px;">
+    <div class="section-inner section-inner-sm">
 
         <!-- Stats row -->
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-            <div class="card" style="flex: 1; min-width: 140px; text-align: center; padding: 1.25rem 1rem;">
-                <div style="font-size: 2rem; font-weight: 800; color: var(--navy);">{{ total }}</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Checked In</div>
+        <div class="attendance-stats-row">
+            <div class="card attendance-stat-card">
+                <div class="stat-num">{{ total }}</div>
+                <div class="stat-lbl">Checked In</div>
             </div>
             {% if event.point_value %}
-            <div class="card" style="flex: 1; min-width: 140px; text-align: center; padding: 1.25rem 1rem;">
-                <div style="font-size: 2rem; font-weight: 800; color: var(--gold-dark);">+{{ event.point_value }}</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Pts Per Attendee</div>
+            <div class="card attendance-stat-card">
+                <div class="stat-num-gold">+{{ event.point_value }}</div>
+                <div class="stat-lbl">Pts Per Attendee</div>
             </div>
             {% endif %}
         </div>
 
         <!-- Actions -->
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
-            <h2 style="color: var(--navy); margin: 0;">Attendees</h2>
+        <div class="action-bar">
+            <h2 class="card-section-title">Attendees</h2>
             {% if total %}
-            <a href="{% url 'clubhouse:event_attendance_export' event.pk %}" class="btn btn-primary" style="font-size: 0.875rem;">Export CSV</a>
+            <a href="{% url 'clubhouse:event_attendance_export' event.pk %}" class="btn btn-primary btn-sm">Export CSV</a>
             {% endif %}
         </div>
 
         <!-- Roster -->
-        <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="card card-flush">
             {% if roster %}
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                    <thead>
-                        <tr style="background: var(--navy); color: white; text-align: left;">
-                            <th style="padding: 0.75rem 1rem; font-weight: 600;">#</th>
-                            <th style="padding: 0.75rem 1rem; font-weight: 600;">Name</th>
-                            <th style="padding: 0.75rem 1rem; font-weight: 600;">Email</th>
-                            <th style="padding: 0.75rem 1rem; font-weight: 600;">Checked In At</th>
+                <table class="attendance-table">
+                    <thead class="attendance-thead">
+                        <tr>
+                            <th class="attendance-th">#</th>
+                            <th class="attendance-th">Name</th>
+                            <th class="attendance-th">Email</th>
+                            <th class="attendance-th">Checked In At</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for entry in roster %}
-                        <tr style="border-bottom: 1px solid var(--border); {% if forloop.even %}background: var(--bg);{% endif %}">
-                            <td style="padding: 0.65rem 1rem; color: var(--text-muted);">{{ forloop.counter }}</td>
-                            <td style="padding: 0.65rem 1rem; font-weight: 500;">{{ entry.user.first_name }} {{ entry.user.last_name }}</td>
-                            <td style="padding: 0.65rem 1rem; color: var(--text-muted);">
+                        <tr class="attendance-row {% if forloop.even %}attendance-row-alt{% endif %}">
+                            <td class="attendance-td-muted">{{ forloop.counter }}</td>
+                            <td class="attendance-td" style="font-weight:500;">{{ entry.user.first_name }} {{ entry.user.last_name }}</td>
+                            <td class="attendance-td-muted">
                                 {{ entry.user.email }}
                                 {% if entry.user.profile.otc_email != entry.user.email %}
-                                <br><span style="font-size: 0.8rem;">{{ entry.user.profile.otc_email }}</span>
+                                <br><span class="otc-email-sm">{{ entry.user.profile.otc_email }}</span>
                                 {% endif %}
                             </td>
-                            <td style="padding: 0.65rem 1rem; color: var(--text-muted);">{{ entry.checked_in_at|date:"g:i A" }}</td>
+                            <td class="attendance-td-muted">{{ entry.checked_in_at|date:"g:i A" }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             {% else %}
-                <div style="padding: 2.5rem; text-align: center; color: var(--text-muted);">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
+                <div class="empty-state">
+                    <div class="auth-success-icon">📋</div>
                     <p>No one has checked in yet.</p>
                 </div>
             {% endif %}

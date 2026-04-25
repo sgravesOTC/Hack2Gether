@@ -4,17 +4,12 @@
 
 {% block content %}
 <section class="section">
-    <div class="section-inner" style="max-width: 680px;">
+    <div class="section-inner section-inner-sm" style="max-width:680px;">
 
         <div style="margin-bottom: 2rem;">
-            <a href="{% url 'clubhouse:club_detail' event.club.slug %}"
-               style="font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">
-                ← Back to {{ event.club.name }}
-            </a>
-            <h1 style="color: var(--navy); font-size: 1.6rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 0.15rem;">
-                Edit Survey
-            </h1>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">{{ event.title }}</p>
+            <a href="{% url 'clubhouse:club_detail' event.club.slug %}" class="back-link">← Back to {{ event.club.name }}</a>
+            <h1 style="color: var(--navy); font-size: 1.6rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 0.15rem;">Edit Survey</h1>
+            <p class="text-muted-sm">{{ event.title }}</p>
         </div>
 
         <form method="post" id="survey-form">
@@ -23,21 +18,17 @@
 
             <div id="question-list">
                 {% for form in formset %}
-                    <div class="question-card card" style="margin-bottom: 1rem; position: relative;">
+                    <div class="question-card card card-mb" style="position: relative;">
 
                         {# Hidden fields (id, DELETE) #}
                         {% for field in form.hidden_fields %}
                             {{ field }}
                         {% endfor %}
 
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-                            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-                                         letter-spacing: 0.5px; color: var(--text-muted);">
-                                Question
-                            </span>
+                        <div class="card-header-row" style="margin-bottom:1rem;">
+                            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Question</span>
                             {% if form.instance.pk or forloop.counter > 1 %}
-                                <label style="display: flex; align-items: center; gap: 0.4rem;
-                                              font-size: 0.8rem; color: #b91c1c; cursor: pointer; font-weight: 500;">
+                                <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #b91c1c; cursor: pointer; font-weight: 500;">
                                     {{ form.DELETE }}
                                     Remove
                                 </label>
@@ -56,7 +47,6 @@
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <!-- Type -->
                             <div class="field">
                                 <label>{{ form.question_type.label }}</label>
                                 {{ form.question_type }}
@@ -66,8 +56,6 @@
                                     </ul>
                                 {% endif %}
                             </div>
-
-                            <!-- Order -->
                             <div class="field">
                                 <label>{{ form.order.label }}</label>
                                 {{ form.order }}
@@ -79,13 +67,9 @@
                             </div>
                         </div>
 
-                        <!-- Required -->
                         <div style="display: flex; align-items: center; gap: 0.6rem; margin-top: 0.25rem;">
                             {{ form.required }}
-                            <label for="{{ form.required.id_for_label }}"
-                                   style="font-size: 0.875rem; font-weight: 500; color: var(--navy); cursor: pointer;">
-                                Required
-                            </label>
+                            <label for="{{ form.required.id_for_label }}" style="font-size: 0.875rem; font-weight: 500; color: var(--navy); cursor: pointer;">Required</label>
                         </div>
 
                     </div>
@@ -94,18 +78,14 @@
 
             <!-- Empty form template — hidden, cloned by JS -->
             <div id="empty-form-template" style="display: none;">
-                <div class="question-card card" style="margin-bottom: 1rem; position: relative;">
+                <div class="question-card card card-mb" style="position: relative;">
                     {% for field in formset.empty_form.hidden_fields %}
                         {{ field }}
                     {% endfor %}
 
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-                        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-                                     letter-spacing: 0.5px; color: var(--text-muted);">
-                            Question
-                        </span>
-                        <label style="display: flex; align-items: center; gap: 0.4rem;
-                                      font-size: 0.8rem; color: #b91c1c; cursor: pointer; font-weight: 500;">
+                    <div class="card-header-row" style="margin-bottom:1rem;">
+                        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Question</span>
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #b91c1c; cursor: pointer; font-weight: 500;">
                             {{ formset.empty_form.DELETE }}
                             Remove
                         </label>
@@ -129,19 +109,12 @@
 
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-top: 0.25rem;">
                         {{ formset.empty_form.required }}
-                        <label style="font-size: 0.875rem; font-weight: 500; color: var(--navy); cursor: pointer;">
-                            Required
-                        </label>
+                        <label style="font-size: 0.875rem; font-weight: 500; color: var(--navy); cursor: pointer;">Required</label>
                     </div>
                 </div>
             </div>
 
-            <!-- Add question button -->
-            <button type="button" id="add-question-btn"
-                    class="btn btn-secondary"
-                    style="width: 100%; margin-bottom: 1.5rem; border-style: dashed;">
-                + Add Question
-            </button>
+            <button type="button" id="add-question-btn" class="btn btn-secondary btn-dashed btn-full" style="margin-bottom: 1.5rem;">+ Add Question</button>
 
             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                 <button type="submit" class="btn btn-primary">Save Survey</button>

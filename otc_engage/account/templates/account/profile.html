@@ -51,11 +51,11 @@
                     </div>
                     <div class="info-row">
                         <span class="label">OTC Email</span>
-                        <span class="value" style="font-size:0.85rem;">{{ profile.otc_email }}</span>
+                        <span class="value value-sm">{{ profile.otc_email }}</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Email</span>
-                        <span class="value" style="font-size:0.85rem;">{{ user.email }}</span>
+                        <span class="value value-sm">{{ user.email }}</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Member Since</span>
@@ -63,10 +63,10 @@
                     </div>
                 </div>
 
-                <div class="profile-actions" style="flex-direction: column; gap: 0.5rem; margin-top: 1.25rem;">
-                    <a href="{% url 'account:edit_profile' %}" class="btn btn-primary" style="width:100%;text-align:center;">Edit Profile</a>
-                    <a href="{% url 'account:my_qr' %}" class="btn btn-secondary" style="width:100%;text-align:center;">My QR Code</a>
-                    <a href="{% url 'account:password_change' %}" class="btn btn-secondary" style="width:100%;text-align:center;">Change Password</a>
+                <div class="profile-actions profile-actions-col">
+                    <a href="{% url 'account:edit_profile' %}" class="btn btn-primary btn-full">Edit Profile</a>
+                    <a href="{% url 'account:my_qr' %}" class="btn btn-secondary btn-full">My QR Code</a>
+                    <a href="{% url 'account:password_change' %}" class="btn btn-secondary btn-full">Change Password</a>
                 </div>
 
             </div>
@@ -77,10 +77,10 @@
     <div class="profile-main-col">
 
         <!-- Requests -->
-        <div class="card" style="margin-bottom: 1.5rem;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;">
-                <h2 style="color:var(--navy);margin:0;font-size:1.1rem;">Requests</h2>
-                <a href="{% url 'bulletin_board:create_request' %}" class="btn btn-primary" style="font-size:0.85rem;padding:0.35rem 0.8rem;">+ New Request</a>
+        <div class="card card-mb">
+            <div class="card-header-row">
+                <h2 class="card-section-title">Requests</h2>
+                <a href="{% url 'bulletin_board:create_request' %}" class="btn btn-primary btn-sm">+ New Request</a>
             </div>
 
             {% if club_requests.pending or club_requests.approved or club_requests.denied %}
@@ -94,22 +94,22 @@
                             <p class="kanban-item-type">{{ req.get_type_display }}</p>
                             <p class="kanban-item-notes">{{ req.notes }}</p>
                             <p class="kanban-item-due">Due {{ req.due_date|date:"M j, Y" }}</p>
-                            {% if req.complete %}<span class="profile-role-badge" style="background:rgba(0,200,150,0.1);color:var(--teal);font-size:0.7rem;margin-top:0.3rem;display:inline-block;">Complete</span>{% endif %}
+                            {% if req.complete %}<span class="profile-role-badge badge-teal badge-sm" style="margin-top:0.3rem;display:inline-block;">Complete</span>{% endif %}
                             {% if is_admin %}
                             <div class="kanban-item-actions">
                                 <form method="post" action="{% url 'bulletin_board:approve_request' req.pk %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary" style="font-size:0.75rem;padding:0.25rem 0.6rem;">Approve</button>
+                                    <button type="submit" class="btn btn-primary btn-xs">Approve</button>
                                 </form>
                                 <form method="post" action="{% url 'bulletin_board:deny_request' req.pk %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-secondary" style="font-size:0.75rem;padding:0.25rem 0.6rem;color:#b91c1c;">Deny</button>
+                                    <button type="submit" class="btn btn-secondary btn-xs btn-danger-text">Deny</button>
                                 </form>
                             </div>
                             {% endif %}
                         </div>
                     {% empty %}
-                        <p style="font-size:0.8rem;color:var(--text-muted);">None</p>
+                        <p class="text-muted-sm">None</p>
                     {% endfor %}
                 </div>
 
@@ -121,10 +121,10 @@
                             <p class="kanban-item-type">{{ req.get_type_display }}</p>
                             <p class="kanban-item-notes">{{ req.notes }}</p>
                             <p class="kanban-item-due">Due {{ req.due_date|date:"M j, Y" }}</p>
-                            {% if req.complete %}<span class="profile-role-badge" style="background:rgba(0,200,150,0.1);color:var(--teal);font-size:0.7rem;margin-top:0.3rem;display:inline-block;">Complete</span>{% endif %}
+                            {% if req.complete %}<span class="profile-role-badge badge-teal badge-sm" style="margin-top:0.3rem;display:inline-block;">Complete</span>{% endif %}
                         </div>
                     {% empty %}
-                        <p style="font-size:0.8rem;color:var(--text-muted);">None</p>
+                        <p class="text-muted-sm">None</p>
                     {% endfor %}
                 </div>
 
@@ -138,16 +138,16 @@
                             <p class="kanban-item-due">Due {{ req.due_date|date:"M j, Y" }}</p>
                         </div>
                     {% empty %}
-                        <p style="font-size:0.8rem;color:var(--text-muted);">None</p>
+                        <p class="text-muted-sm">None</p>
                     {% endfor %}
                 </div>
 
             </div>
             {% else %}
-                <div style="text-align:center;padding:2.5rem 0;color:var(--text-muted);">
-                    <div style="font-size:2.5rem;margin-bottom:0.5rem;">📋</div>
+                <div class="empty-state">
+                    <div class="auth-success-icon">📋</div>
                     <p style="font-weight:600;color:var(--navy);margin-bottom:0.25rem;">No requests yet</p>
-                    <p style="font-size:0.875rem;">Submit a request for IT, facilities, finance, or event approval.</p>
+                    <p class="text-muted-sm">Submit a request for IT, facilities, finance, or event approval.</p>
                 </div>
             {% endif %}
         </div>
@@ -155,41 +155,41 @@
         <!-- Reservations (admin only) -->
         {% if is_admin and reservations is not None %}
         <div class="card">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;">
-                <h2 style="color:var(--navy);margin:0;font-size:1.1rem;">Reservations</h2>
+            <div class="card-header-row">
+                <h2 class="card-section-title">Reservations</h2>
                 {% if reservations %}
-                    <span style="font-size:0.8rem;color:var(--text-muted);">{{ reservations|length }} pending</span>
+                    <span class="text-muted-sm">{{ reservations|length }} pending</span>
                 {% endif %}
             </div>
             {% if reservations %}
-                <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div class="reservations-list">
                     {% for res in reservations %}
-                        <div style="background:var(--bg);border-radius:var(--radius);padding:1rem;border:1px solid var(--border);">
-                            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                        <div class="reservation-card">
+                            <div class="reservation-card-row">
                                 <div>
-                                    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.35rem;">
-                                        <span style="font-weight:700;color:var(--navy);font-size:0.925rem;">{{ res.event.title }}</span>
-                                        <span class="profile-role-badge" style="background:rgba(0,100,200,0.1);color:var(--navy);">{{ res.club.name }}</span>
+                                    <div class="reservation-title-row">
+                                        <span class="reservation-title">{{ res.event.title }}</span>
+                                        <span class="profile-role-badge badge-navy">{{ res.club.name }}</span>
                                         {% if res.approved %}
-                                            <span class="profile-role-badge" style="background:rgba(0,200,150,0.1);color:var(--teal);">Approved</span>
+                                            <span class="profile-role-badge badge-teal">Approved</span>
                                         {% else %}
-                                            <span class="profile-role-badge" style="background:rgba(255,160,0,0.15);color:#b45309;">Pending</span>
+                                            <span class="profile-role-badge badge-gold">Pending</span>
                                         {% endif %}
                                     </div>
-                                    <p class="event-meta" style="font-size:0.825rem;">
+                                    <p class="event-meta text-muted-sm">
                                         {{ res.location.building }} {{ res.location.room_num }}
                                         {% if res.location.room_name %} — {{ res.location.room_name }}{% endif %}
                                         · {{ res.start_time|date:"M j, Y g:i A" }} – {{ res.end_time|date:"g:i A" }}
                                     </p>
                                 </div>
-                                <div style="display:flex;gap:0.4rem;flex-shrink:0;">
+                                <div class="reservation-actions">
                                     <form method="post" action="{% url 'bulletin_board:approve_reservation' res.pk %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-primary" style="font-size:0.825rem;padding:0.3rem 0.75rem;">Approve</button>
+                                        <button type="submit" class="btn btn-primary btn-sm">Approve</button>
                                     </form>
                                     <form method="post" action="{% url 'bulletin_board:deny_reservation' res.pk %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-secondary" style="font-size:0.825rem;padding:0.3rem 0.75rem;color:#b91c1c;">Deny</button>
+                                        <button type="submit" class="btn btn-secondary btn-sm btn-danger-text">Deny</button>
                                     </form>
                                 </div>
                             </div>
@@ -197,8 +197,8 @@
                     {% endfor %}
                 </div>
             {% else %}
-                <div style="text-align:center;padding:2rem 0;color:var(--text-muted);">
-                    <div style="font-size:2rem;margin-bottom:0.5rem;">📍</div>
+                <div class="empty-state">
+                    <div class="auth-success-icon">📍</div>
                     <p>No reservations awaiting approval.</p>
                 </div>
             {% endif %}

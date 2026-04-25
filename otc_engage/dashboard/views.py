@@ -2,15 +2,14 @@ from django.shortcuts import render
 from django.db.models import Count, Avg, Q
 from django.utils import timezone
 from datetime import timedelta
+from clubhouse.models import Club, Event, Attendance, Survey
+from bulletin_board.models import Request as BulletinRequest
+from account.models import Profile
 
 
 def home(request):
     if not request.user.is_authenticated:
         return render(request, 'dashboard/home.html')
-
-    from clubhouse.models import Club, Event, Attendance, Survey
-    from bulletin_board.models import Request as BulletinRequest
-    from account.models import Profile
 
     profile = request.user.profile
     is_admin = profile.role == profile.Role.ADMIN

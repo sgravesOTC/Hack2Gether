@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="auth-wrapper">
-    <div class="auth-card" style="max-width: 560px;">
+    <div class="auth-card auth-card-lg">
         <h1>Create a Club</h1>
         <p class="auth-subtitle">Your submission will be reviewed by Student Engagement before appearing in the club list.</p>
 
@@ -49,9 +49,9 @@
             </div>
 
             {% if form.pending_advisor_name %}
-                <div class="card" style="margin: 1.5rem 0; border-left: 3px solid var(--gold);">
+                <div class="card card-gold-left-border" style="margin: 1.5rem 0;">
                     <p style="font-weight: 600; margin-bottom: 1rem; color: var(--navy);">Faculty Advisor Information</p>
-                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    <p class="text-muted-sm" style="margin-bottom: 1rem;">
                         Student Engagement will use this to verify your faculty advisor before approving the club.
                     </p>
                     <div class="field">

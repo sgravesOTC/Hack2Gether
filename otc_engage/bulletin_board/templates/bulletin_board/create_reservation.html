@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="auth-wrapper">
-    <div class="auth-card" style="max-width: 560px;">
+    <div class="auth-card auth-card-lg">
         <h1>Reserve a Location</h1>
         <p class="auth-subtitle">{{ event.title }} &mdash; {{ club.name }}</p>
 
@@ -39,9 +39,7 @@
                 {{ form.end_time }}
             </div>
 
-            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
-                Reservations are subject to approval by Student Engagement.
-            </p>
+            <p class="text-muted-sm" style="margin-bottom: 1rem;">Reservations are subject to approval by Student Engagement.</p>
 
             <div class="field-submit">
                 <button type="submit" class="btn btn-primary">Submit Reservation</button>

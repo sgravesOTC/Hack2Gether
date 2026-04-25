@@ -1,273 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}OTCPulse — Your Campus Community{% endblock %}
 
-{% block extra_head %}
-{% if user.is_authenticated %}
-<style>
-/* ── Personal stat strip ──────────────────────────────── */
-.home-stat-strip {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.home-stat-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.1rem 1.1rem 0.9rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.home-stat-accent {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    border-radius: var(--radius) var(--radius) 0 0;
-}
-
-.home-stat-value {
-    font-size: 1.9rem;
-    font-weight: 800;
-    color: var(--navy);
-    line-height: 1;
-    margin-bottom: 0.2rem;
-}
-
-.home-stat-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-}
-
-/* ── Nav shortcut cards ───────────────────────────────── */
-.home-nav-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-}
-
-/* ── Two-column layout ────────────────────────────────── */
-.home-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-/* ── Club analytics section ───────────────────────────── */
-.analytics-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-    margin-top: 0.5rem;
-}
-
-.analytics-section-header h2 {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: var(--navy);
-    margin: 0;
-}
-
-.club-analytics-block {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow);
-}
-
-.club-analytics-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.1rem 1.25rem;
-    border-bottom: 1px solid var(--border);
-    background: linear-gradient(to right, rgba(27,58,107,0.03), transparent);
-}
-
-.club-analytics-title {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--navy);
-}
-
-.club-analytics-title img {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    object-fit: cover;
-}
-
-.club-analytics-title .club-emoji-sm {
-    font-size: 1.2rem;
-    line-height: 1;
-}
-
-.club-analytics-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-}
-
-.club-analytics-kpis {
-    padding: 1.1rem 1.25rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    border-right: 1px solid var(--border);
-}
-
-.mini-kpi {
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 0.65rem 0.75rem;
-}
-
-.mini-kpi-val {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--navy);
-    line-height: 1;
-}
-
-.mini-kpi-lbl {
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: var(--text-muted);
-    margin-top: 0.2rem;
-}
-
-.mini-kpi-sub {
-    font-size: 0.68rem;
-    color: var(--teal);
-    font-weight: 600;
-    margin-top: 0.2rem;
-}
-
-.club-analytics-chart {
-    padding: 1.1rem 1.25rem;
-}
-
-.club-analytics-chart-title {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-    margin-bottom: 0.6rem;
-}
-
-.chart-container {
-    position: relative;
-    height: 100px;
-}
-
-/* ── Upcoming events list ─────────────────────────────── */
-.upcoming-event-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.65rem 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.875rem;
-}
-
-.upcoming-event-row:last-child { border-bottom: none; }
-
-.upcoming-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--teal);
-    flex-shrink: 0;
-    margin-top: 5px;
-}
-
-.upcoming-event-title {
-    font-weight: 600;
-    color: var(--navy);
-}
-
-.upcoming-event-meta {
-    font-size: 0.775rem;
-    color: var(--text-muted);
-    margin-top: 0.1rem;
-}
-
-/* ── Top members mini list ────────────────────────────── */
-.top-member-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.825rem;
-}
-
-.top-member-row:last-child { border-bottom: none; }
-
-.mini-avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--gold);
-    color: var(--navy-dark);
-    font-size: 0.6rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.mini-rank {
-    font-size: 0.65rem;
-    font-weight: 800;
-    color: var(--text-muted);
-    width: 14px;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.top-member-name {
-    flex: 1;
-    font-weight: 600;
-    color: var(--navy);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.top-member-pts {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--teal);
-    flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
-    .home-body { grid-template-columns: 1fr; }
-    .club-analytics-body { grid-template-columns: 1fr; }
-    .club-analytics-kpis { border-right: none; border-bottom: 1px solid var(--border); }
-    .home-nav-grid { grid-template-columns: repeat(2, 1fr); }
-}
-</style>
-{% endif %}
-{% endblock %}
-
 {% block content %}
 
 {% if user.is_authenticated %}
@@ -287,22 +20,22 @@
         <!-- Personal stats -->
         <div class="home-stat-strip">
             <div class="home-stat-card">
-                <div class="home-stat-accent" style="background:var(--gold);"></div>
+                <div class="home-stat-accent accent-gold"></div>
                 <div class="home-stat-value">{{ personal.points }}</div>
                 <div class="home-stat-label">My Points</div>
             </div>
             <div class="home-stat-card">
-                <div class="home-stat-accent" style="background:var(--teal);"></div>
+                <div class="home-stat-accent accent-teal"></div>
                 <div class="home-stat-value">{{ personal.events_attended }}</div>
                 <div class="home-stat-label">Events Attended</div>
             </div>
             <div class="home-stat-card">
-                <div class="home-stat-accent" style="background:var(--navy);"></div>
+                <div class="home-stat-accent accent-navy"></div>
                 <div class="home-stat-value">{{ personal.club_count }}</div>
                 <div class="home-stat-label">Clubs Joined</div>
             </div>
             <div class="home-stat-card">
-                <div class="home-stat-accent" style="background:var(--purple);"></div>
+                <div class="home-stat-accent accent-purple"></div>
                 <div class="home-stat-value">{{ personal.surveys_done }}</div>
                 <div class="home-stat-label">Surveys Done</div>
             </div>
@@ -310,25 +43,25 @@
 
         <!-- Nav shortcuts -->
         <div class="home-nav-grid">
-            <a href="{% url 'account:profile' %}" class="card card-link" style="padding:1.25rem;">
-                <div class="card-icon icon-gold" style="width:40px;height:40px;font-size:1.1rem;margin-bottom:0.6rem;">👤</div>
-                <h3 style="font-size:0.9rem;margin-bottom:0.2rem;">My Profile</h3>
-                <p style="font-size:0.8rem;">Points, QR code, settings</p>
+            <a href="{% url 'account:profile' %}" class="card card-link card-padded">
+                <div class="card-icon icon-gold nav-shortcut-icon">👤</div>
+                <h3 class="nav-shortcut-title">My Profile</h3>
+                <p class="nav-shortcut-text">Points, QR code, settings</p>
             </a>
-            <a href="{% url 'clubhouse:club_list' %}" class="card card-link" style="padding:1.25rem;">
-                <div class="card-icon icon-teal" style="width:40px;height:40px;font-size:1.1rem;margin-bottom:0.6rem;">🏛️</div>
-                <h3 style="font-size:0.9rem;margin-bottom:0.2rem;">Clubs</h3>
-                <p style="font-size:0.8rem;">Browse and join clubs</p>
+            <a href="{% url 'clubhouse:club_list' %}" class="card card-link card-padded">
+                <div class="card-icon icon-teal nav-shortcut-icon">🏛️</div>
+                <h3 class="nav-shortcut-title">Clubs</h3>
+                <p class="nav-shortcut-text">Browse and join clubs</p>
             </a>
-            <a href="{% url 'clubhouse:event_list' %}" class="card card-link" style="padding:1.25rem;">
-                <div class="card-icon icon-purple" style="width:40px;height:40px;font-size:1.1rem;margin-bottom:0.6rem;">📅</div>
-                <h3 style="font-size:0.9rem;margin-bottom:0.2rem;">Events</h3>
-                <p style="font-size:0.8rem;">Upcoming events & points</p>
+            <a href="{% url 'clubhouse:event_list' %}" class="card card-link card-padded">
+                <div class="card-icon icon-purple nav-shortcut-icon">📅</div>
+                <h3 class="nav-shortcut-title">Events</h3>
+                <p class="nav-shortcut-text">Upcoming events & points</p>
             </a>
-            <a href="{% url 'bulletin_board:request_list' %}" class="card card-link" style="padding:1.25rem;">
-                <div class="card-icon icon-navy" style="width:40px;height:40px;font-size:1.1rem;margin-bottom:0.6rem;">📋</div>
-                <h3 style="font-size:0.9rem;margin-bottom:0.2rem;">Requests</h3>
-                <p style="font-size:0.8rem;">Club support requests</p>
+            <a href="{% url 'bulletin_board:request_list' %}" class="card card-link card-padded">
+                <div class="card-icon icon-navy nav-shortcut-icon">📋</div>
+                <h3 class="nav-shortcut-title">Requests</h3>
+                <p class="nav-shortcut-text">Club support requests</p>
             </a>
         </div>
 
@@ -336,39 +69,39 @@
         <div class="home-body">
 
             <!-- Upcoming events -->
-            <div class="card" style="padding:1.5rem;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                    <h2 style="font-size:1rem;font-weight:800;color:var(--navy);margin:0;">Upcoming Events</h2>
-                    <a href="{% url 'clubhouse:event_list' %}" style="font-size:0.8rem;color:var(--navy);font-weight:600;">See all →</a>
+            <div class="card card-padded">
+                <div class="card-header-row" style="margin-bottom:1rem;">
+                    <h2 class="card-section-title" style="font-size:1rem;">Upcoming Events</h2>
+                    <a href="{% url 'clubhouse:event_list' %}" class="text-muted-sm" style="font-weight:600;">See all →</a>
                 </div>
                 {% if upcoming_events %}
                     {% for event in upcoming_events %}
                         <div class="upcoming-event-row">
-                            <div class="upcoming-dot" {% if event.pk in attended_pks %}style="background:var(--gold);"{% endif %}></div>
+                            <div class="upcoming-dot {% if event.pk in attended_pks %}accent-gold{% endif %}"></div>
                             <div>
                                 <div class="upcoming-event-title">{{ event.title }}</div>
                                 <div class="upcoming-event-meta">
                                     {{ event.club.name }} · {{ event.start_time|date:"M j, g:i A" }}
                                     {% if event.point_value %} · <span class="point-badge">+{{ event.point_value }} pts</span>{% endif %}
-                                    {% if event.pk in attended_pks %} · <span style="color:var(--gold);font-weight:700;">✓ Attended</span>{% endif %}
+                                    {% if event.pk in attended_pks %} · <span class="attended-text">✓ Attended</span>{% endif %}
                                 </div>
                             </div>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <div style="text-align:center;padding:2rem 0;color:var(--text-muted);font-size:0.875rem;">
+                    <div class="empty-state" style="padding:2rem 0;">
                         📭 No upcoming events right now.
                     </div>
                 {% endif %}
             </div>
 
             <!-- Quick actions / QR code nudge -->
-            <div class="card" style="padding:1.5rem;display:flex;flex-direction:column;gap:0.75rem;">
-                <h2 style="font-size:1rem;font-weight:800;color:var(--navy);margin:0 0 0.25rem;">Quick Actions</h2>
-                <a href="{% url 'account:my_qr' %}" class="btn btn-primary" style="text-align:center;">📲 Show My QR Code</a>
-                <a href="{% url 'clubhouse:club_list' %}" class="btn btn-secondary" style="text-align:center;">🏛️ Browse Clubs</a>
-                <a href="{% url 'bulletin_board:create_request' %}" class="btn btn-secondary" style="text-align:center;">📋 Submit a Request</a>
-                <a href="{% url 'account:edit_profile' %}" class="btn btn-secondary" style="text-align:center;">✏️ Edit Profile</a>
+            <div class="card card-padded col-gap" style="gap:0.75rem;">
+                <h2 class="card-section-title" style="font-size:1rem;margin-bottom:0.25rem;">Quick Actions</h2>
+                <a href="{% url 'account:my_qr' %}" class="btn btn-primary btn-full">📲 Show My QR Code</a>
+                <a href="{% url 'clubhouse:club_list' %}" class="btn btn-secondary btn-full">🏛️ Browse Clubs</a>
+                <a href="{% url 'bulletin_board:create_request' %}" class="btn btn-secondary btn-full">📋 Submit a Request</a>
+                <a href="{% url 'account:edit_profile' %}" class="btn btn-secondary btn-full">✏️ Edit Profile</a>
             </div>
 
         </div>
@@ -378,7 +111,7 @@
             <div class="analytics-section-header">
                 <h2>Club Analytics</h2>
                 {% if is_admin %}
-                    <span style="font-size:0.8rem;color:var(--text-muted);font-weight:500;">{{ club_analytics|length }} club{{ club_analytics|length|pluralize }}</span>
+                    <span class="text-muted-sm" style="font-weight:500;">{{ club_analytics|length }} club{{ club_analytics|length|pluralize }}</span>
                 {% endif %}
             </div>
 
@@ -395,10 +128,10 @@
                         {% endif %}
                         {{ data.club.name }}
                         {% if data.pending_requests > 0 %}
-                            <span style="background:rgba(255,179,0,0.15);color:#b45309;border-radius:100px;padding:0.15rem 0.6rem;font-size:0.72rem;font-weight:700;">{{ data.pending_requests }} pending</span>
+                            <span class="pending-requests-badge">{{ data.pending_requests }} pending</span>
                         {% endif %}
                     </div>
-                    <a href="{% url 'clubhouse:club_detail' data.club.slug %}" class="btn btn-secondary" style="font-size:0.78rem;padding:0.3rem 0.75rem;">View Club →</a>
+                    <a href="{% url 'clubhouse:club_detail' data.club.slug %}" class="btn btn-secondary btn-xs">View Club →</a>
                 </div>
 
                 <div class="club-analytics-body">
@@ -427,7 +160,7 @@
                         <!-- Top members -->
                         {% if data.top_members %}
                         <div style="grid-column:1/-1;margin-top:0.25rem;">
-                            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:0.5rem;">Top Members</div>
+                            <div class="mini-kpi-lbl" style="margin-bottom:0.5rem;">Top Members</div>
                             {% for m in data.top_members %}
                             <div class="top-member-row">
                                 <span class="mini-rank">{{ forloop.counter }}</span>
@@ -448,7 +181,7 @@
                                 <canvas id="chart-{{ data.club.slug }}"></canvas>
                             </div>
                         {% else %}
-                            <div style="color:var(--text-muted);font-size:0.8rem;padding:1rem 0;">No event data yet.</div>
+                            <div class="text-muted-sm" style="padding:1rem 0;">No event data yet.</div>
                         {% endif %}
                     </div>
 

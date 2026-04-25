@@ -23,7 +23,6 @@ class EventAdmin(admin.ModelAdmin):
     list_display = ['title', 'club', 'start_time', 'end_time', 'point_value','is_active']
     list_filter = ['club']
     search_fields = ['title']
-    readonly_fields = ['token']
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):

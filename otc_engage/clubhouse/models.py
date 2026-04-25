@@ -1,4 +1,3 @@
-import uuid
 from django.db import models
 from django.utils.text import slugify
 from account.models import Profile
@@ -88,7 +87,6 @@ class Event(models.Model):
         null=True,
         blank=True,
     )
-    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     point_value = models.IntegerField(default=10)
     # separate from status so complete_event can't double-award if something goes sideways
     staffing_points_awarded = models.BooleanField(default=False)

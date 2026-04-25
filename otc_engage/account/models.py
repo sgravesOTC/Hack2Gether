@@ -46,7 +46,6 @@ class Profile(models.Model):
         default=Role.STUDENT,
     )
     image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
-    checkin_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     short_code = models.CharField(max_length=8, unique=True, blank=True)
 
     def save(self, *args, **kwargs):

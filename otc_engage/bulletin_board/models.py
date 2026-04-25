@@ -2,10 +2,6 @@ from django.db import models
 from django.utils import timezone
 from clubhouse.models import Club, Location, Event
 
-class Announcement(models.Model):
-    subject = models.CharField(max_length=100)
-    body = models.TextField()
-
 class Request(models.Model):
     club = models.ForeignKey(
         Club,

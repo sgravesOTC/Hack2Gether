@@ -152,6 +152,8 @@
 
                                     {% if event.status == 'PUBLISHED' or event.status == 'APPROVED' %}
                                         <a href="{% url 'clubhouse:edit_survey' event.pk %}" class="btn btn-secondary btn-event-action" title="Edit survey">✏️</a>
+                                    {% endif %}
+                                    {% if event.status == 'PUBLISHED' or event.status == 'APPROVED' or event.status == 'COMPLETED' %}
                                         {% if event.survey_questions.exists %}
                                             <a href="{% url 'clubhouse:survey_results' event.pk %}" class="btn btn-secondary btn-event-action btn-purple-outline" title="Survey results">📊</a>
                                         {% endif %}

@@ -1,10 +1,5 @@
 from django.contrib import admin
-from .models import Announcement, Request, Reservation
-
-@admin.register(Announcement)
-class AnnouncementAdmin(admin.ModelAdmin):
-    list_display = ['subject']
-    search_fields = ['subject', 'body']
+from .models import Request, Reservation
 
 @admin.register(Request)
 class RequestAdmin(admin.ModelAdmin):

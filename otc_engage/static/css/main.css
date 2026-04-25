@@ -85,23 +85,6 @@ main { flex: 1; }
 }
 .nav-link:hover { color: var(--gold); }
 
-.nav-form { margin: 0; }
-
-.nav-btn-logout {
-    background: none;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.85);
-    padding: 0.4rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all var(--ease);
-}
-.nav-btn-logout:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
-
 /* === BUTTONS =============================================== */
 .btn {
     display: inline-block;
@@ -156,23 +139,6 @@ main { flex: 1; }
     color: inherit;
 }
 
-.card-coming-soon {
-    position: relative;
-    opacity: 0.75;
-}
-
-.coming-soon-tag {
-    display: inline-block;
-    margin-top: 0.75rem;
-    background: rgba(100, 116, 139, 0.1);
-    color: var(--text-muted);
-    border-radius: 100px;
-    padding: 0.2rem 0.65rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
 
 /* === HERO SHORT (authenticated) ============================ */
 .hero-short {
@@ -667,12 +633,6 @@ main { flex: 1; }
 .auth-footer a:hover { color: var(--gold-dark); }
 
 /* === PROFILE =============================================== */
-.profile-wrapper {
-    padding: 3rem 2rem;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
 .profile-card {
     background: var(--white);
     border-radius: var(--radius-lg);
@@ -928,128 +888,6 @@ main { flex: 1; }
     }
 }
 
-/* === CHECK-IN PAGES ======================================== */
-.checkin-page {
-    min-height: calc(100vh - 68px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1.5rem;
-    background: linear-gradient(160deg, var(--bg) 55%, rgba(27,58,107,0.07) 100%);
-}
-
-.checkin-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border);
-    padding: 2.5rem 2rem;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-}
-
-.checkin-icon {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: rgba(0,200,150,0.12);
-    color: var(--teal);
-    font-size: 2rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.25rem;
-}
-
-.checkin-icon-info {
-    background: rgba(59,130,246,0.12);
-    color: #3B82F6;
-}
-
-.checkin-icon-warn {
-    background: rgba(255,179,0,0.12);
-    color: var(--gold-dark);
-}
-
-.checkin-heading {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--navy);
-    margin-bottom: 0.5rem;
-}
-
-.checkin-event {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 0.2rem;
-}
-
-.checkin-club {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-}
-
-.checkin-time {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 0.75rem;
-}
-
-.checkin-points {
-    display: inline-block;
-    background: rgba(0,200,150,0.1);
-    color: var(--teal);
-    border-radius: 100px;
-    padding: 0.3rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-}
-
-.checkin-hint {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-}
-
-.checkin-error {
-    background: #FEE2E2;
-    border: 1px solid #FECACA;
-    border-radius: 8px;
-    color: #991B1B;
-    font-size: 0.875rem;
-    font-weight: 500;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    text-align: left;
-}
-
-.checkin-code-input {
-    width: 100%;
-    padding: 0.85rem 1rem;
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-align: center;
-    text-transform: uppercase;
-    color: var(--navy);
-    background: #FAFBFC;
-    outline: none;
-    transition: border-color var(--ease), box-shadow var(--ease);
-}
-
-.checkin-code-input:focus {
-    border-color: var(--navy);
-    box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.1);
-    background: var(--white);
-}
 
 /* === QR PAGES ============================================== */
 .qr-page {
@@ -1071,41 +909,6 @@ main { flex: 1; }
     max-width: 480px;
     width: 100%;
     text-align: center;
-}
-
-.qr-badge {
-    display: inline-block;
-    background: rgba(255,179,0,0.15);
-    color: var(--gold-dark);
-    border: 1px solid rgba(255,179,0,0.35);
-    border-radius: 100px;
-    padding: 0.3rem 1rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-}
-
-.qr-title {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--navy);
-    margin-bottom: 0.35rem;
-    line-height: 1.2;
-}
-
-.qr-club {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    margin-bottom: 0.25rem;
-    font-weight: 500;
-}
-
-.qr-time {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 1.75rem;
 }
 
 .qr-subtitle {
@@ -1148,37 +951,6 @@ main { flex: 1; }
     margin-bottom: 1.75rem;
 }
 
-.qr-points {
-    display: inline-block;
-    background: rgba(0,200,150,0.1);
-    color: var(--teal);
-    border-radius: 100px;
-    padding: 0.3rem 1rem;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 1.75rem;
-}
-
-.qr-divider {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin: 1.25rem 0;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.qr-divider::before,
-.qr-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-}
-
 .qr-code-block {
     background: var(--navy);
     border-radius: var(--radius);
@@ -1201,12 +973,6 @@ main { flex: 1; }
     font-weight: 800;
     letter-spacing: 0.25em;
     color: var(--gold);
-}
-
-.qr-code-url {
-    font-size: 0.78rem;
-    color: rgba(255,255,255,0.5);
-    margin-top: 0.4rem;
 }
 
 .qr-actions {
@@ -1385,7 +1151,6 @@ main { flex: 1; }
     .auth-card      { padding: 1.75rem 1.25rem; }
     .field-group    { grid-template-columns: 1fr; }
     .profile-stats  { grid-template-columns: repeat(2, 1fr); }
-    .profile-wrapper { padding: 1.5rem 1rem; }
     .profile-body   { padding: 0 1.25rem 1.5rem; }
 }
 
@@ -1683,12 +1448,6 @@ main { flex: 1; }
 
 .profile-main-col { /* right — requests + reservations */ }
 
-/* Make profile card work in sidebar */
-.profile-layout .profile-wrapper {
-    padding: 0;
-    max-width: none;
-    margin: 0;
-}
 
 /* Kanban board — responsive */
 .kanban-grid {
@@ -1800,9 +1559,6 @@ main { flex: 1; }
     background: var(--navy);
     color: #fff;
 }
-
-.event-tab-panel { display: none; }
-.event-tab-panel.active { display: block; }
 
 /* === RESPONSIVE FIXES ====================================== */
 @media (max-width: 900px) {

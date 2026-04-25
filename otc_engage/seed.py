@@ -19,7 +19,7 @@ from clubhouse.models import (
     Attendance, Club, Event, Location,
     Survey, SurveyQuestion, SurveyResponse,
 )
-from bulletin_board.models import Announcement, Request, Reservation
+from bulletin_board.models import Request, Reservation
 
 User = get_user_model()
 
@@ -253,10 +253,14 @@ event_specs = [
          start=future(9), end=future(9, 2),   points=10),
 
     # Past events (for attendance/survey testing)
-    dict(title="Robotics Orientation",     club=clubs[0], status="PUBLISHED", loc=locations[5],
-         start=past(14), end=past(14, -2),   points=10),
-    dict(title="Hack Night #11",           club=clubs[1], status="PUBLISHED", loc=locations[0],
-         start=past(7),  end=past(7, -2),    points=10),
+    dict(title="Robotics Orientation",     club=clubs[0], status="COMPLETED", loc=locations[5],
+         start=past(14), end=past(13, 22),   points=10),
+    dict(title="Hack Night #11",           club=clubs[1], status="COMPLETED", loc=locations[0],
+         start=past(7),  end=past(6, 21),    points=10),
+    dict(title="Intro to Watercolor",      club=clubs[2], status="COMPLETED", loc=locations[7],
+         start=past(10), end=past(9, 22),    points=10),
+    dict(title="Open Support Circle",      club=clubs[3], status="COMPLETED", loc=locations[3],
+         start=past(5),  end=past(4, 23),    points=5),
 ]
 
 events = []
@@ -294,56 +298,170 @@ print(f"  Attendance records: {Attendance.objects.count()}")
 
 
 # ---------------------------------------------------------------------------
-# 6. Survey questions & responses (past events)
+# 6. Survey questions & responses (past/completed events)
 # ---------------------------------------------------------------------------
 
 print("Creating surveys...")
 
-generic_questions = [
-    ("How would you rate this event overall?",      "STARS"),
-    ("Would you recommend this event to a friend?", "YESNO"),
-    ("Any additional comments or suggestions?",     "TEXT"),
-]
+# Per-event question definitions: (prompt, type, order, required)
+event_survey_specs = {
+    "Robotics Orientation": {
+        "questions": [
+            ("How would you rate this event overall?",           "STARS", 0, True),
+            ("Did you feel comfortable with the difficulty level?", "YESNO", 1, True),
+            ("Would you recommend this event to a friend?",      "YESNO", 2, True),
+            ("What did you enjoy most about the orientation?",   "TEXT",  3, False),
+            ("What could we improve for next time?",             "TEXT",  4, False),
+        ],
+        "text_pools": {
+            "What did you enjoy most about the orientation?": [
+                "The hands-on Arduino demo was really engaging.",
+                "I loved how welcoming everyone was — great community.",
+                "Learning to wire up sensors was way easier than I expected.",
+                "The officers explained everything really clearly.",
+                "Getting to build something from scratch on day one was awesome.",
+            ],
+            "What could we improve for next time?": [
+                "More time on the coding side would be great.",
+                "Could use better lighting in the workshop.",
+                "Maybe split into beginner and advanced tracks?",
+                "I'd love printed reference sheets to take home.",
+                "",
+            ],
+        },
+        "star_weights": [1, 1, 2, 4, 4],   # skewed toward 3–5
+        "yesno_weights": [[1, 4], [1, 5]],  # mostly yes
+    },
+    "Hack Night #11": {
+        "questions": [
+            ("How would you rate this hack night overall?",           "STARS", 0, True),
+            ("Did you complete a project or make significant progress?", "YESNO", 1, True),
+            ("Was the event long enough?",                             "YESNO", 2, False),
+            ("What technologies did you work with tonight?",           "TEXT",  3, False),
+            ("Any suggestions for future hack nights?",                "TEXT",  4, False),
+        ],
+        "text_pools": {
+            "What technologies did you work with tonight?": [
+                "Python and Flask — built a simple API.",
+                "React + Tailwind, making a portfolio site.",
+                "Django for the first time — it clicked!",
+                "JavaScript and Chart.js for a data viz project.",
+                "Just explored Git and GitHub workflows.",
+            ],
+            "Any suggestions for future hack nights?": [
+                "More theme-based challenges would be fun.",
+                "Having mentors walk around to help would be great.",
+                "Please provide snacks next time!",
+                "I'd love a mini demo session at the end.",
+                "",
+            ],
+        },
+        "star_weights": [1, 2, 3, 4, 3],
+        "yesno_weights": [[2, 4], [1, 3]],
+    },
+    "Intro to Watercolor": {
+        "questions": [
+            ("How would you rate this session overall?",           "STARS", 0, True),
+            ("Did you feel you had enough supplies and materials?", "YESNO", 1, True),
+            ("Would you attend another art workshop like this?",    "YESNO", 2, True),
+            ("What was your favorite part of the session?",        "TEXT",  3, False),
+            ("Is there a specific art topic you'd like us to cover?", "TEXT", 4, False),
+        ],
+        "text_pools": {
+            "What was your favorite part of the session?": [
+                "Learning wet-on-wet blending techniques — so satisfying.",
+                "The relaxed atmosphere made it easy to experiment.",
+                "I finally understand color theory thanks to this.",
+                "The instructor was patient and really encouraging.",
+                "Seeing everyone's different interpretations of the same prompt.",
+            ],
+            "Is there a specific art topic you'd like us to cover?": [
+                "Portrait drawing with pencils!",
+                "Digital illustration basics — maybe Procreate?",
+                "Acrylic pouring looks so fun.",
+                "Zentangle or mindfulness doodling.",
+                "",
+            ],
+        },
+        "star_weights": [0, 1, 2, 5, 5],   # very positive
+        "yesno_weights": [[1, 5], [0, 6]],
+    },
+    "Open Support Circle": {
+        "questions": [
+            ("How would you rate this week's circle overall?",            "STARS", 0, True),
+            ("Did you feel safe and heard during today's session?",       "YESNO", 1, True),
+            ("Would you encourage a fellow student to attend?",           "YESNO", 2, True),
+            ("What made today's session valuable to you?",                "TEXT",  3, False),
+            ("Is there a topic or resource you'd like us to address?",    "TEXT",  4, False),
+        ],
+        "text_pools": {
+            "What made today's session valuable to you?": [
+                "Knowing I'm not alone in what I'm going through.",
+                "The guided breathing exercise really helped me reset.",
+                "Open, judgment-free space — I needed that today.",
+                "Hearing others' experiences made me feel understood.",
+                "The check-in format was simple but really effective.",
+            ],
+            "Is there a topic or resource you'd like us to address?": [
+                "Coping with exam stress.",
+                "Time management and avoiding burnout.",
+                "Resources for students dealing with housing insecurity.",
+                "How to support a friend who's struggling.",
+                "",
+            ],
+        },
+        "star_weights": [0, 0, 1, 4, 6],   # heavily positive
+        "yesno_weights": [[0, 6], [0, 6]],
+    },
+}
 
 for ev in past_events:
-    for order, (prompt, qtype) in enumerate(generic_questions):
+    spec = event_survey_specs.get(ev.title)
+    if not spec:
+        continue
+
+    for prompt, qtype, order, required in spec["questions"]:
         SurveyQuestion.objects.get_or_create(
             event=ev, prompt=prompt,
-            defaults=dict(question_type=qtype, order=order, required=(order < 2)),
+            defaults=dict(question_type=qtype, order=order, required=required),
         )
 
-    questions = list(ev.survey_questions.all())
-    attendees = ev.attendees.select_related("user").all()
+    questions   = list(ev.survey_questions.order_by("order"))
+    yesno_qs    = [q for q in questions if q.question_type == "YESNO"]
+    attendances = ev.attendees.select_related("user").all()
 
-    for attendance in attendees:
+    for idx, attendance in enumerate(attendances):
         user = attendance.user
         survey, created = Survey.objects.get_or_create(
             event=ev, attendee=user,
             defaults=dict(bonus_points_awarded=True),
         )
-        if created:
-            for q in questions:
-                if q.question_type == "STARS":
-                    SurveyResponse.objects.get_or_create(
-                        survey=survey, question=q,
-                        defaults=dict(int_answer=random.randint(3, 5)),
-                    )
-                elif q.question_type == "YESNO":
-                    SurveyResponse.objects.get_or_create(
-                        survey=survey, question=q,
-                        defaults=dict(int_answer=random.choice([0, 1])),
-                    )
-                else:
-                    SurveyResponse.objects.get_or_create(
-                        survey=survey, question=q,
-                        defaults=dict(text_answer=random.choice([
-                            "Great event, learned a lot!",
-                            "Would love more hands-on time.",
-                            "The speaker was fantastic.",
-                            "Please do this again next semester.",
-                            "",
-                        ])),
-                    )
+        if not created:
+            continue
+
+        yesno_counter = 0
+        for q in questions:
+            if q.question_type == "STARS":
+                weights = spec["star_weights"]
+                answer  = random.choices(range(1, 6), weights=weights)[0]
+                SurveyResponse.objects.get_or_create(
+                    survey=survey, question=q,
+                    defaults=dict(int_answer=answer),
+                )
+            elif q.question_type == "YESNO":
+                w = spec["yesno_weights"][yesno_counter % len(spec["yesno_weights"])]
+                answer = random.choices([0, 1], weights=w)[0]
+                SurveyResponse.objects.get_or_create(
+                    survey=survey, question=q,
+                    defaults=dict(int_answer=answer),
+                )
+                yesno_counter += 1
+            else:  # TEXT
+                pool = spec["text_pools"].get(q.prompt, [""])
+                SurveyResponse.objects.get_or_create(
+                    survey=survey, question=q,
+                    defaults=dict(text_answer=random.choice(pool)),
+                )
 
 print(f"  Surveys: {Survey.objects.count()}, Responses: {SurveyResponse.objects.count()}")
 

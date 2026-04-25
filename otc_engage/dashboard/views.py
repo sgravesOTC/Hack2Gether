@@ -19,9 +19,8 @@ def home(request):
     )
 
     now = timezone.now()
-    thirty_days_ago = now - timedelta(days=30)
+    thirty_days_ago = now - timedelta(days=30)  # window used for "recent" check-in counts
 
-    # ── Personal stats (all users) ──────────────────────────────
     personal = {
         'points': profile.points,
         'events_attended': profile.events_attended_count,
@@ -45,7 +44,6 @@ def home(request):
         .order_by('start_time')[:5]
     )
 
-    # ── Club analytics (officers / advisors / admins) ────────────
     club_analytics = None
     if is_officer_or_above:
         if is_admin:

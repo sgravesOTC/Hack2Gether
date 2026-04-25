@@ -38,6 +38,7 @@ class ClubCreateForm(forms.ModelForm):
         self.fields['pending_advisor_email'].label = 'Faculty Advisor OTC Email'
         self.fields['pending_advisor_email'].help_text = 'Must be an @otc.edu address.'
 
+        # Advisors and admins are already on staff; students/officers must name their advisor
         needs_advisor_info = role not in ('ADVISOR', 'ADMIN')
         if needs_advisor_info:
             self.fields['pending_advisor_name'].required = True

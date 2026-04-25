@@ -284,6 +284,32 @@
                     </div>
                 </div>
 
+                <!-- Member leaderboard -->
+                {% if top_members %}
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <h3 style="margin-bottom:0.75rem;color:var(--navy);">Top Members</h3>
+                    {% for member in top_members %}
+                    <div class="lb-row lb-row-sm">
+                        <div class="lb-rank">
+                            {% if forloop.counter == 1 %}🥇
+                            {% elif forloop.counter == 2 %}🥈
+                            {% elif forloop.counter == 3 %}🥉
+                            {% else %}<span class="lb-rank-num">{{ forloop.counter }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="lb-identity">
+                            <div class="member-avatar" style="flex-shrink:0;">{{ member.user.first_name|first|upper }}{{ member.user.last_name|first|upper }}</div>
+                            <span style="font-size:0.875rem;">{{ member }}</span>
+                        </div>
+                        <div class="lb-score">
+                            <span class="lb-points lb-points-sm">{{ member.points }}</span>
+                            <span class="lb-pts-label">pts</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 {% if can_edit and club.officer_applicants.all %}
                     <div class="card" style="margin-bottom:1.5rem;border-left:3px solid var(--gold);">
                         <h3 style="margin-bottom:1rem;color:var(--navy);">Officer Applications <span style="font-size:0.8rem;font-weight:700;background:rgba(255,179,0,0.15);color:#b45309;border-radius:100px;padding:0.1rem 0.5rem;">{{ club.officer_applicants.count }}</span></h3>

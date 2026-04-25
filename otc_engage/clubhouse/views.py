@@ -1,6 +1,7 @@
 import csv
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import F
+from django.db.models import F, Sum, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -64,6 +65,7 @@ def club_detail(request, slug):
     else:
         club_requests = None
     has_applied = club.officer_applicants.filter(pk=profile.pk).exists()
+    top_members = club.members.order_by('-points')[:10]
 
     return render(request, 'clubhouse/club_detail.html', {
         'club': club,
@@ -74,6 +76,7 @@ def club_detail(request, slug):
         'is_admin': is_admin,
         'club_requests': club_requests,
         'has_applied': has_applied,
+        'top_members': top_members,
         'section': 'clubhouse',
     })
 
@@ -244,7 +247,7 @@ def create_event(request, slug):
     if not can_edit:
         raise PermissionDenied
 
-    from bulletin_board.models import Request as BulletinRequest
+    from bulletin_board.models import Request as BulletinRequest  # local to avoid circular import
 
     form = CreateEventForm(data=request.POST or None, club=club)
     request_formset = NewRequestFormSet(data=request.POST or None, prefix='req')
@@ -336,6 +339,7 @@ def event_list(request):
         'section': 'clubhouse',
     })
 def _can_edit_club(profile, club):
+    """True for club officers, faculty advisors, and SE admins."""
     return (
         club.officers.filter(pk=profile.pk).exists() or
         club.advisors.filter(pk=profile.pk).exists() or
@@ -345,7 +349,6 @@ def _can_edit_club(profile, club):
 @login_required
 def event_checkin_terminal(request, pk):
     from account.models import Profile
-    from django.db.models import F
 
     event = get_object_or_404(Event, pk=pk)
     if not _can_edit_club(request.user.profile, event.club):
@@ -373,15 +376,14 @@ def event_checkin_terminal(request, pk):
                 if created:
                     result = 'checked_in'
 
-                    # Award points to the checking-in student
                     profile.points += event.point_value
                     profile.save(update_fields=['points'])
 
-                    # Award 2 points to club officers
+                    # Officers earn 2 pts per check-in as a reward for running the event
                     officer_profiles = event.club.officers.all()
                     officer_profiles.update(points=F('points') + 2)
 
-                    # Award 1 point to regular members (non-officers)
+                    # Regular members (non-officers) earn 1 pt for having an active club
                     member_profiles = event.club.members.exclude(
                         pk__in=event.club.officers.values_list('pk', flat=True)
                     )
@@ -509,12 +511,10 @@ def take_survey(request, pk):
     event = get_object_or_404(Event, pk=pk)
     user = request.user
 
-    # Must have attended
     if not Attendance.objects.filter(event=event, user=user).exists():
         messages.error(request, 'You must check in to an event before filling out its survey.')
         return redirect('clubhouse:event_list')
 
-    # Already submitted?
     if Survey.objects.filter(event=event, attendee=user).exists():
         messages.info(request, 'You have already submitted a survey for this event.')
         return redirect('clubhouse:event_list')
@@ -538,8 +538,7 @@ def take_survey(request, pk):
             else:
                 SurveyResponse.objects.create(survey=survey, question=q, text_answer=raw)
 
-        # Award bonus points if the event has a nonzero point value
-        bonus = max(1, event.point_value // 5)  # e.g. 10pts event → 2 bonus pts
+        bonus = max(1, event.point_value // 5)  # e.g. 10pt event → 2 bonus pts
         if bonus and not survey.bonus_points_awarded:
             profile = user.profile
             profile.points += bonus
@@ -593,4 +592,29 @@ def survey_results(request, pk):
         'results': results,
         'total_submissions': surveys,
         'section': 'clubhouse',
+    })
+
+
+@login_required
+def leaderboard(request):
+    from account.models import Profile
+
+    # Sum each approved club's member points; distinct=True prevents double-counting
+    # on the M2M join if the same profile appears via multiple paths.
+    clubs = (
+        Club.objects.filter(approved=True, denied=False)
+        .annotate(total_points=Coalesce(Sum('members__points', distinct=True), Value(0)))
+        .order_by('-total_points')
+    )
+
+    students = (
+        Profile.objects.filter(role=Profile.Role.STUDENT)
+        .select_related('user')
+        .order_by('-points')[:25]
+    )
+
+    return render(request, 'clubhouse/leaderboard.html', {
+        'clubs': clubs,
+        'students': students,
+        'section': 'leaderboard',
     })

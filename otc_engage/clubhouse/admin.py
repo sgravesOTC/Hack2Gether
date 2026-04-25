@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Club, Location, Event, Survey, Attendance
+from .models import Club, Location, Event, Survey, SurveyQuestion, SurveyResponse, Attendance
 
 @admin.register(Club)
 class ClubAdmin(admin.ModelAdmin):
@@ -30,7 +30,6 @@ class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('event', 'user', 'checked_in_at')
     list_filter = ('event',)
 
-from .models import Club, Location, Event, Survey, SurveyQuestion, SurveyResponse, Attendance
 
 @admin.register(SurveyQuestion)
 class SurveyQuestionAdmin(admin.ModelAdmin):

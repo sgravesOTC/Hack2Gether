@@ -6,7 +6,6 @@ from django.conf import settings
 from django.utils import timezone
 
 
-# Create your models here.
 class Club(models.Model):
     name = models.CharField(max_length=50)
     advisors = models.ManyToManyField(
@@ -112,8 +111,6 @@ class Attendance(models.Model):
     def profile(self):
         return self.user.profile
 
-STARS = [(i, i) for i in range(1, 6)] 
-
 class SurveyQuestion(models.Model):
     class QuestionType(models.TextChoices):
         TEXT = 'TEXT', 'Text Response'
@@ -165,7 +162,8 @@ class SurveyResponse(models.Model):
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name='responses')
     question = models.ForeignKey(SurveyQuestion, on_delete=models.CASCADE)
     text_answer = models.TextField(blank=True, default='')
-    int_answer = models.PositiveSmallIntegerField(null=True, blank=True)  # stars (1-5) or yes/no (1/0)
+    # stars: 1–5; yes/no: 1 = yes, 0 = no; null for text questions
+    int_answer = models.PositiveSmallIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f'Response to "{self.question.prompt[:30]}"'

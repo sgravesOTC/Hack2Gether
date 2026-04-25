@@ -1830,3 +1830,143 @@ main { flex: 1; }
 @media (max-width: 480px) {
     .nav-links { gap: 0.5rem; }
 }
+
+/* === LEADERBOARD =========================================== */
+
+.leaderboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.leaderboard-heading {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 0.75rem;
+}
+
+.lb-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    transition: background var(--ease);
+}
+
+.lb-row:last-child { border-bottom: none; }
+
+.lb-row:hover { background: var(--bg); }
+
+.lb-row-medal {
+    background: rgba(255, 179, 0, 0.04);
+}
+
+.lb-row-medal:hover { background: rgba(255, 179, 0, 0.09); }
+
+/* Compact variant used inside the club detail sidebar */
+.lb-row-sm {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.lb-row-sm:last-child { border-bottom: none; }
+
+.lb-rank {
+    min-width: 2rem;
+    text-align: center;
+    font-size: 1.25rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.lb-rank-num {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.lb-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex: 1;
+    min-width: 0;
+    text-decoration: none;
+    color: inherit;
+}
+
+.lb-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--navy-dark);
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.lb-avatar-club {
+    border-radius: 10px;
+    font-size: 1.1rem;
+}
+
+.lb-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.lb-name {
+    font-size: 0.925rem;
+    font-weight: 600;
+    color: var(--navy);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lb-sub {
+    font-size: 0.775rem;
+    color: var(--text-muted);
+    margin-top: 0.1rem;
+}
+
+.lb-score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.lb-points {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--navy);
+}
+
+.lb-points-sm {
+    font-size: 0.925rem;
+}
+
+.lb-pts-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .leaderboard-grid {
+        grid-template-columns: 1fr;
+    }
+}

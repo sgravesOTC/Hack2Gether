@@ -8,6 +8,7 @@ from clubhouse.models import Event
 
 
 def _requests_for_profile(profile):
+    """Admins see all requests; everyone else only sees requests for clubs they manage."""
     if profile.role == profile.Role.ADMIN:
         return Request.objects.all().order_by('complete', 'due_date')
     return Request.objects.filter(

@@ -5,7 +5,6 @@ from clubhouse.models import Club, Location, Event
 class Announcement(models.Model):
     subject = models.CharField(max_length=100)
     body = models.TextField()
-    tags = None  # TODO: Add tags
 
 class Request(models.Model):
     club = models.ForeignKey(

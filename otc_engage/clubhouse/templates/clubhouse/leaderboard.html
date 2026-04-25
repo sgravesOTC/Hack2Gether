@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Leaderboard | OTCPulse{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">Leaderboard</span>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<section class="hero hero-short">
+    <div class="hero-inner">
+        <span class="hero-badge">Rankings</span>
+        <h1>🏆 Leaderboard</h1>
+        <p>Top clubs and students ranked by cumulative engagement points.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-inner">
+        <div class="leaderboard-grid">
+
+            <!-- Club leaderboard -->
+            <div>
+                <h2 class="leaderboard-heading">Clubs</h2>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    {% if clubs %}
+                        {% for club in clubs %}
+                        <div class="lb-row {% if forloop.counter <= 3 %}lb-row-medal{% endif %}">
+                            <div class="lb-rank">
+                                {% if forloop.counter == 1 %}🥇
+                                {% elif forloop.counter == 2 %}🥈
+                                {% elif forloop.counter == 3 %}🥉
+                                {% else %}<span class="lb-rank-num">{{ forloop.counter }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'clubhouse:club_detail' club.slug %}" class="lb-identity">
+                                <div class="lb-avatar lb-avatar-club">
+                                    {% if club.image %}
+                                        <img src="{{ club.image.url }}" alt="{{ club.name }}" class="lb-avatar-img">
+                                    {% else %}
+                                        {{ club.emoji|default:'🏛️' }}
+                                    {% endif %}
+                                </div>
+                                <div class="lb-name">{{ club.name }}</div>
+                            </a>
+                            <div class="lb-score">
+                                <span class="lb-points">{{ club.total_points }}</span>
+                                <span class="lb-pts-label">pts</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="padding:2rem;text-align:center;color:var(--text-muted);">No clubs yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Student leaderboard -->
+            <div>
+                <h2 class="leaderboard-heading">Students</h2>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    {% if students %}
+                        {% for student in students %}
+                        <div class="lb-row {% if forloop.counter <= 3 %}lb-row-medal{% endif %}">
+                            <div class="lb-rank">
+                                {% if forloop.counter == 1 %}🥇
+                                {% elif forloop.counter == 2 %}🥈
+                                {% elif forloop.counter == 3 %}🥉
+                                {% else %}<span class="lb-rank-num">{{ forloop.counter }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="lb-identity">
+                                <div class="lb-avatar">
+                                    {% if student.image %}
+                                        <img src="{{ student.image.url }}" alt="{{ student }}" class="lb-avatar-img">
+                                    {% else %}
+                                        {{ student.user.first_name|first|upper }}{{ student.user.last_name|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="lb-name">{{ student.user.get_full_name|default:student.user.username }}</div>
+                                    <div class="lb-sub">{{ student.club_member.count }} club{{ student.club_member.count|pluralize }}</div>
+                                </div>
+                            </div>
+                            <div class="lb-score">
+                                <span class="lb-points">{{ student.points }}</span>
+                                <span class="lb-pts-label">pts</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="padding:2rem;text-align:center;color:var(--text-muted);">No students yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

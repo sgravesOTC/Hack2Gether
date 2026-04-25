@@ -21,6 +21,7 @@
             <div class="nav-main-links">
                 <a href="{% url 'clubhouse:club_list' %}"  class="nav-link {% if request.resolver_match.app_name == 'clubhouse' and 'club' in request.resolver_match.url_name %}nav-link-active{% endif %}">Clubs</a>
                 <a href="{% url 'clubhouse:event_list' %}" class="nav-link {% if request.resolver_match.app_name == 'clubhouse' and 'event' in request.resolver_match.url_name %}nav-link-active{% endif %}">Events</a>
+                <a href="{% url 'clubhouse:leaderboard' %}" class="nav-link {% if request.resolver_match.app_name == 'clubhouse' and request.resolver_match.url_name == 'leaderboard' %}nav-link-active{% endif %}">Leaderboard</a>
                 <a href="{% url 'bulletin_board:request_list' %}" class="nav-link {% if request.resolver_match.app_name == 'bulletin_board' %}nav-link-active{% endif %}">Requests</a>
             </div>
             {% endif %}
@@ -75,6 +76,7 @@
         <div class="nav-mobile-drawer" id="nav-mobile-drawer">
             <a href="{% url 'clubhouse:club_list' %}"  class="nav-mobile-link">🏛️ Clubs</a>
             <a href="{% url 'clubhouse:event_list' %}" class="nav-mobile-link">📅 Events</a>
+            <a href="{% url 'clubhouse:leaderboard' %}" class="nav-mobile-link">🏆 Leaderboard</a>
             <a href="{% url 'bulletin_board:request_list' %}" class="nav-mobile-link">📋 Requests</a>
             <div class="nav-mobile-divider"></div>
             <a href="{% url 'account:profile' %}"     class="nav-mobile-link">👤 My Profile</a>

@@ -6,6 +6,7 @@ app_name = 'clubhouse'
 urlpatterns = [
     path('', views.club_list, name='club_list'),
     path('create/', views.club_create, name='club_create'),
+    path('leaderboard/', views.leaderboard, name='leaderboard'),
     path('events/', views.event_list, name='event_list'),
     path('events/<int:pk>/submit/', views.submit_event, name='submit_event'),
     path('events/<int:pk>/approve/', views.approve_event, name='approve_event'),

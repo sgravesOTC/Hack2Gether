@@ -14,17 +14,17 @@ def _requests_for_profile(profile):
         club__in=profile.club_officer.all() | profile.faculty_advisor.all()
     ).order_by('complete', 'due_date')
 
-
 @login_required
 def request_list(request):
     profile = request.user.profile
     requests = _requests_for_profile(profile)
+    is_admin = profile.role == profile.Role.ADMIN
 
     return render(request, 'bulletin_board/request_list.html', {
         'requests': requests,
         'section': 'bulletin_board',
+        'is_admin': is_admin,
     })
-
 
 @login_required
 def create_request(request):
@@ -41,7 +41,6 @@ def create_request(request):
         'section': 'bulletin_board',
     })
 
-
 @login_required
 def set_request_approval(request, pk, status):
     profile = request.user.profile
@@ -52,7 +51,6 @@ def set_request_approval(request, pk, status):
     req.approval_status = status
     req.save()
     return redirect('bulletin_board:request_list')
-
 
 @login_required
 def create_reservation(request, event_pk):
@@ -85,7 +83,6 @@ def create_reservation(request, event_pk):
         'club': club,
         'section': 'bulletin_board',
     })
-
 
 @login_required
 def set_reservation_approval(request, pk, approved):

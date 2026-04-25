@@ -35,4 +35,6 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('my-qr/', views.my_qr_page, name='my_qr'),
+    path('my-qr/image/', views.my_qr_image, name='my_qr_image'),
 ]

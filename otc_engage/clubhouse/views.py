@@ -1,16 +1,14 @@
-import io
-import qrcode
+import csv
 from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import F
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .models import Club, Event, Attendance
-from .forms import ClubEditForm, ClubCreateForm, CreateEventForm, NewRequestFormSet
+from .models import Club, Event, Attendance, SurveyQuestion, Survey, SurveyResponse
+from .forms import ClubEditForm, ClubCreateForm, CreateEventForm, NewRequestFormSet, SurveyQuestionFormSet, SurveySubmitForm
 from django.http import HttpResponse
-from django.urls import reverse
-
 
 
 @login_required
@@ -49,11 +47,22 @@ def club_detail(request, slug):
     if (not club.approved or club.denied) and not is_admin:
         raise PermissionDenied
 
-    upcoming_events = club.events.order_by('start_time')
     is_member = club.members.filter(pk=profile.pk).exists()
     is_officer = club.officers.filter(pk=profile.pk).exists()
     can_edit = is_officer or club.advisors.filter(pk=profile.pk).exists() or is_admin
-    club_requests = club.requests.order_by('complete', 'due_date') if can_edit else None
+    if can_edit:
+        upcoming_events = club.events.order_by('start_time')
+    else:
+        upcoming_events = club.events.filter(status=Event.Status.PUBLISHED).order_by('start_time')
+    if can_edit:
+        base_requests = club.requests.order_by('due_date')
+        club_requests = {
+            'pending': base_requests.filter(approval_status='-'),
+            'approved': base_requests.filter(approval_status='O'),
+            'denied': base_requests.filter(approval_status='X'),
+        }
+    else:
+        club_requests = None
     has_applied = club.officer_applicants.filter(pk=profile.pk).exists()
 
     return render(request, 'clubhouse/club_detail.html', {
@@ -235,22 +244,48 @@ def create_event(request, slug):
     if not can_edit:
         raise PermissionDenied
 
+    from bulletin_board.models import Request as BulletinRequest
+
     form = CreateEventForm(data=request.POST or None, club=club)
     request_formset = NewRequestFormSet(data=request.POST or None, prefix='req')
 
-    if request.method == 'POST' and form.is_valid() and request_formset.is_valid():
-        event = form.save(commit=False)
-        event.club = club
-        event.save()
+    if request.method == 'POST':
+        form_valid = form.is_valid()
+        formset_valid = request_formset.is_valid()
 
-        linked_request = form.cleaned_data.get('related_request')
-        if linked_request:
-            linked_request.due_date = event.start_time
-            linked_request.save()
+        if form_valid and formset_valid:
+            filled_forms = [f for f in request_formset if f.is_filled()]
 
-        from bulletin_board.models import Request as BulletinRequest
-        for req_form in request_formset:
-            if req_form.is_filled():
+            if any(request_formset.errors):
+                return render(request, 'clubhouse/create_event.html', {
+                    'form': form,
+                    'request_formset': request_formset,
+                    'club': club,
+                    'section': 'clubhouse',
+                })
+
+            event = form.save(commit=False)
+            event.club = club
+            event.status = Event.Status.SUBMITTED
+            event.save()
+
+            # Auto-create the event approval request
+            BulletinRequest.objects.create(
+                club=club,
+                event=event,
+                type=BulletinRequest.Type.EVENT,
+                notes=f'Event approval requested for "{event.title}".',
+                due_date=event.start_time,
+            )
+
+            # Handle linked existing request
+            linked_request = form.cleaned_data.get('related_request')
+            if linked_request:
+                linked_request.due_date = event.start_time
+                linked_request.save()
+
+            # Handle additional support requests from formset
+            for req_form in filled_forms:
                 BulletinRequest.objects.create(
                     club=club,
                     type=req_form.cleaned_data['type'],
@@ -258,8 +293,14 @@ def create_event(request, slug):
                     due_date=event.start_time,
                 )
 
-        messages.success(request, f'"{event.title}" has been created.')
-        return redirect('clubhouse:club_detail', slug=club.slug)
+            messages.success(request, f'"{event.title}" has been submitted for approval.')
+            return redirect('clubhouse:club_detail', slug=club.slug)
+
+        else:
+            if not form_valid:
+                messages.error(request, 'Event form has errors.')
+            if not formset_valid:
+                messages.error(request, 'Request formset has errors.')
 
     return render(request, 'clubhouse/create_event.html', {
         'form': form,
@@ -272,15 +313,28 @@ def create_event(request, slug):
 @login_required
 def event_list(request):
     events = (
-        Event.objects.filter(club__approved=True, club__denied=False, end_time__gte=timezone.now())
+        Event.objects.filter(
+            club__approved=True, club__denied=False,
+            end_time__gte=timezone.now(),
+            status=Event.Status.PUBLISHED,
+        )
         .select_related('club', 'location')
         .order_by('start_time')
     )
+    attended_pks = set(
+        Attendance.objects.filter(user=request.user)
+        .values_list('event_id', flat=True)
+    )
+    surveyed_pks = set(
+        Survey.objects.filter(attendee=request.user)
+        .values_list('event_id', flat=True)
+    )
     return render(request, 'clubhouse/event_list.html', {
         'events': events,
+        'attended_pks': attended_pks,
+        'surveyed_pks': surveyed_pks,
         'section': 'clubhouse',
     })
-
 def _can_edit_club(profile, club):
     return (
         club.officers.filter(pk=profile.pk).exists() or
@@ -288,85 +342,255 @@ def _can_edit_club(profile, club):
         profile.role == profile.Role.ADMIN
     )
 
-
 @login_required
-def generate_qr_view(request, pk):
+def event_checkin_terminal(request, pk):
+    from account.models import Profile
+    from django.db.models import F
+
     event = get_object_or_404(Event, pk=pk)
     if not _can_edit_club(request.user.profile, event.club):
         raise PermissionDenied
 
-    checkin_path = reverse('clubhouse:event_checkin', kwargs={'token': event.token})
-    checkin_url = request.build_absolute_uri(checkin_path)
+    result = None
+    student_name = None
 
-    # Generate QR code in memory
-    img = qrcode.make(checkin_url)
-    buffer = io.BytesIO()
-    img.save(buffer, format='PNG')
-    buffer.seek(0)
-
-    return HttpResponse(buffer, content_type='image/png')
-
-
-@login_required
-def event_qr_page(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    if not _can_edit_club(request.user.profile, event.club):
-        raise PermissionDenied
-    short_code = str(event.token).replace('-', '').upper()[:8]
-    return render(request, 'clubhouse/event_qr.html', {
-        'event': event,
-        'club': event.club,
-        'short_code': short_code,
-        'section': 'clubhouse',
-    })
-
-
-@login_required
-def manual_checkin(request):
-    error = None
     if request.method == 'POST':
-        raw = request.POST.get('code', '').strip().upper().replace('-', '').replace(' ', '')
-        if len(raw) != 8 or not all(c in '0123456789ABCDEF' for c in raw):
-            error = 'Please enter the 8-character code exactly as shown.'
+        raw = request.POST.get('code', '').strip().upper().replace(' ', '').replace('-', '')
+        if len(raw) != 8:
+            result = 'invalid'
         else:
             try:
-                event = Event.objects.get(token__istartswith=raw.lower())
-            except Event.DoesNotExist:
-                error = 'No event found with that code. Double-check with your officer.'
-            except Event.MultipleObjectsReturned:
-                error = 'That code matched more than one event. Please ask your officer for help.'
+                profile = Profile.objects.get(short_code=raw)
+            except Profile.DoesNotExist:
+                result = 'not_found'
             else:
-                if not event.is_active():
-                    return render(request, 'events/checkin_inactive.html', {'event': event})
+                student_name = profile.user.get_full_name() or profile.user.username
                 _, created = Attendance.objects.get_or_create(
                     event=event,
-                    user=request.user,
+                    user=profile.user,
                 )
-                if created:
-                    return render(request, 'events/checkin_success.html', {'event': event})
-                return render(request, 'events/checkin_already.html', {'event': event})
 
-    return render(request, 'events/manual_checkin.html', {
-        'error': error,
+                if created:
+                    result = 'checked_in'
+
+                    # Award points to the checking-in student
+                    profile.points += event.point_value
+                    profile.save(update_fields=['points'])
+
+                    # Award 2 points to club officers
+                    officer_profiles = event.club.officers.all()
+                    officer_profiles.update(points=F('points') + 2)
+
+                    # Award 1 point to regular members (non-officers)
+                    member_profiles = event.club.members.exclude(
+                        pk__in=event.club.officers.values_list('pk', flat=True)
+                    )
+                    member_profiles.update(points=F('points') + 1)
+
+                else:
+                    result = 'already_in'
+
+    recent = event.attendees.select_related('user').order_by('-checked_in_at')[:10]
+    return render(request, 'clubhouse/event_checkin_terminal.html', {
+        'event': event,
+        'result': result,
+        'student_name': student_name,
+        'recent': recent,
+        'section': 'clubhouse',
+    })
+@login_required
+def event_attendance(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if not _can_edit_club(request.user.profile, event.club):
+        raise PermissionDenied
+    roster = event.attendees.select_related('user__profile').order_by('checked_in_at')
+    return render(request, 'clubhouse/attendance.html', {
+        'event': event,
+        'roster': roster,
+        'total': roster.count(),
         'section': 'clubhouse',
     })
 
 
 @login_required
-def checkin_view(request, token):
-    event = get_object_or_404(Event, token=token)
+def submit_event(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if not _can_edit_club(request.user.profile, event.club):
+        raise PermissionDenied
+    if request.method == 'POST' and event.status == Event.Status.DRAFT:
+        event.status = Event.Status.SUBMITTED
+        event.save()
+        from bulletin_board.models import Request as BulletinRequest
+        BulletinRequest.objects.create(
+            club=event.club,
+            type=BulletinRequest.Type.OTHER,
+            notes=f'Event "{event.title}" submitted for approval ({event.start_time.strftime("%b %-d, %Y")}). Please review and approve.',
+            due_date=event.start_time,
+        )
+        messages.success(request, f'"{event.title}" submitted for approval.')
+    return redirect('clubhouse:club_detail', slug=event.club.slug)
 
-    # Check if event window is valid
-    if not event.is_active():
-        return render(request, 'events/checkin_inactive.html', {'event': event})
 
-    # Attempt check-in, handle duplicate gracefully
-    attendance, created = Attendance.objects.get_or_create(
-        event=event,
-        user=request.user
+@login_required
+def approve_event(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if request.user.profile.role != request.user.profile.Role.ADMIN:
+        raise PermissionDenied
+    if request.method == 'POST' and event.status == Event.Status.SUBMITTED:
+        event.status = Event.Status.APPROVED
+        event.save()
+        messages.success(request, f'"{event.title}" approved.')
+    return redirect('clubhouse:club_detail', slug=event.club.slug)
+
+
+@login_required
+def publish_event(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if request.user.profile.role != request.user.profile.Role.ADMIN:
+        raise PermissionDenied
+    if request.method == 'POST' and event.status == Event.Status.APPROVED:
+        event.status = Event.Status.PUBLISHED
+        event.save()
+        messages.success(request, f'"{event.title}" published.')
+    return redirect('clubhouse:club_detail', slug=event.club.slug)
+
+
+@login_required
+def event_attendance_export(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if not _can_edit_club(request.user.profile, event.club):
+        raise PermissionDenied
+    roster = event.attendees.select_related('user__profile').order_by('checked_in_at')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{event.title}-attendance.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['First Name', 'Last Name', 'Email', 'OTC Email', 'Checked In At'])
+    for entry in roster:
+        u = entry.user
+        otc_email = u.profile.otc_email
+        writer.writerow([
+            u.first_name,
+            u.last_name,
+            u.email,
+            otc_email if otc_email != u.email else '',
+            entry.checked_in_at.strftime('%Y-%m-%d %H:%M:%S'),
+        ])
+    return response
+
+
+
+@login_required
+def edit_survey(request, pk):
+    """Club officers/advisors/admins configure questions for an event's survey."""
+    event = get_object_or_404(Event, pk=pk)
+    if not _can_edit_club(request.user.profile, event.club):
+        raise PermissionDenied
+
+    formset = SurveyQuestionFormSet(
+        data=request.POST or None,
+        instance=event,
     )
+    if request.method == 'POST' and formset.is_valid():
+        formset.save()
+        messages.success(request, 'Survey updated.')
+        return redirect('clubhouse:club_detail', slug=event.club.slug)
 
-    if created:
-        return render(request, 'events/checkin_success.html', {'event': event})
-    else:
-        return render(request, 'events/checkin_already.html', {'event': event})
+    return render(request, 'clubhouse/edit_survey.html', {
+        'event': event,
+        'formset': formset,
+        'section': 'clubhouse',
+    })
+
+
+@login_required
+def take_survey(request, pk):
+    """Any attendee who checked in can fill out the survey once."""
+    event = get_object_or_404(Event, pk=pk)
+    user = request.user
+
+    # Must have attended
+    if not Attendance.objects.filter(event=event, user=user).exists():
+        messages.error(request, 'You must check in to an event before filling out its survey.')
+        return redirect('clubhouse:event_list')
+
+    # Already submitted?
+    if Survey.objects.filter(event=event, attendee=user).exists():
+        messages.info(request, 'You have already submitted a survey for this event.')
+        return redirect('clubhouse:event_list')
+
+    questions = event.survey_questions.all()
+    if not questions.exists():
+        messages.info(request, 'This event has no survey questions.')
+        return redirect('clubhouse:event_list')
+
+    form = SurveySubmitForm(data=request.POST or None, questions=questions)
+
+    if request.method == 'POST' and form.is_valid():
+        survey = Survey.objects.create(event=event, attendee=user)
+        for q in questions:
+            raw = form.cleaned_data.get(f'q_{q.pk}')
+            if raw is None:
+                continue
+            if q.question_type in (SurveyQuestion.QuestionType.STARS,
+                                   SurveyQuestion.QuestionType.YESNO):
+                SurveyResponse.objects.create(survey=survey, question=q, int_answer=int(raw))
+            else:
+                SurveyResponse.objects.create(survey=survey, question=q, text_answer=raw)
+
+        # Award bonus points if the event has a nonzero point value
+        bonus = max(1, event.point_value // 5)  # e.g. 10pts event → 2 bonus pts
+        if bonus and not survey.bonus_points_awarded:
+            profile = user.profile
+            profile.points += bonus
+            profile.save(update_fields=['points'])
+            survey.bonus_points_awarded = True
+            survey.save(update_fields=['bonus_points_awarded'])
+            messages.success(request, f'Thanks! Survey submitted — you earned {bonus} bonus point{"s" if bonus != 1 else ""}.')
+        else:
+            messages.success(request, 'Survey submitted. Thanks for your feedback!')
+
+        return redirect('clubhouse:event_list')
+
+    return render(request, 'clubhouse/take_survey.html', {
+        'event': event,
+        'form': form,
+        'section': 'clubhouse',
+    })
+
+
+@login_required
+def survey_results(request, pk):
+    """Club officers/advisors/admins view aggregated survey results."""
+    event = get_object_or_404(Event, pk=pk)
+    if not _can_edit_club(request.user.profile, event.club):
+        raise PermissionDenied
+
+    questions = event.survey_questions.prefetch_related('surveyresponse_set').all()
+    surveys = Survey.objects.filter(event=event).count()
+
+    results = []
+    for q in questions:
+        responses = SurveyResponse.objects.filter(question=q)
+        if q.question_type == SurveyQuestion.QuestionType.TEXT:
+            answers = list(responses.exclude(text_answer='').values_list('text_answer', flat=True))
+            results.append({'question': q, 'type': 'text', 'answers': answers})
+        elif q.question_type == SurveyQuestion.QuestionType.STARS:
+            counts = {i: 0 for i in range(1, 6)}
+            for r in responses:
+                if r.int_answer:
+                    counts[r.int_answer] = counts.get(r.int_answer, 0) + 1
+            total = sum(counts.values())
+            avg = round(sum(k * v for k, v in counts.items()) / total, 1) if total else None
+            results.append({'question': q, 'type': 'stars', 'counts': counts, 'avg': avg, 'total': total})
+        else:  # YESNO
+            yes = responses.filter(int_answer=1).count()
+            no = responses.filter(int_answer=0).count()
+            results.append({'question': q, 'type': 'yesno', 'yes': yes, 'no': no})
+
+    return render(request, 'clubhouse/survey_results.html', {
+        'event': event,
+        'results': results,
+        'total_submissions': surveys,
+        'section': 'clubhouse',
+    })

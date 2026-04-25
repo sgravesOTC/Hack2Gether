@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}My Check-in QR | OTCPulse{% endblock %}
+
+{% block content %}
+<div class="qr-page">
+    <div class="qr-card">
+        <p class="qr-subtitle">Your personal check-in ID</p>
+        <p class="qr-name">{{ profile.user.get_full_name }}</p>
+        <p class="qr-role">{{ profile.get_role_display }}</p>
+
+        <div class="qr-image-wrap">
+            <img src="{% url 'account:my_qr_image' %}" alt="Your check-in QR code">
+        </div>
+
+        <p class="qr-hint">Show this to an officer at the door, or have them enter your code manually.</p>
+
+        <div class="qr-code-block">
+            <div class="qr-code-label">Your Code</div>
+            <div class="qr-code-value">{{ profile.short_code }}</div>
+        </div>
+
+        <div class="qr-actions">
+            <a href="{% url 'account:profile' %}" class="btn btn-secondary">← Back to Profile</a>
+            <button onclick="window.print()" class="btn btn-primary">Print / Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

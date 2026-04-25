@@ -15,19 +15,78 @@
             <a href="/" class="nav-brand">
                 <span class="brand-otc">OTC</span><span class="brand-engage">Pulse</span>
             </a>
+
+            {% if user.is_authenticated %}
+            <!-- Desktop nav links -->
+            <div class="nav-main-links">
+                <a href="{% url 'clubhouse:club_list' %}"  class="nav-link {% if request.resolver_match.app_name == 'clubhouse' and 'club' in request.resolver_match.url_name %}nav-link-active{% endif %}">Clubs</a>
+                <a href="{% url 'clubhouse:event_list' %}" class="nav-link {% if request.resolver_match.app_name == 'clubhouse' and 'event' in request.resolver_match.url_name %}nav-link-active{% endif %}">Events</a>
+                <a href="{% url 'bulletin_board:request_list' %}" class="nav-link {% if request.resolver_match.app_name == 'bulletin_board' %}nav-link-active{% endif %}">Requests</a>
+            </div>
+            {% endif %}
+
             <div class="nav-links">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'account:profile' %}" class="nav-link">{{ user.username }}</a>
-                    <form method="post" action="{% url 'account:logout' %}" class="nav-form">
-                        {% csrf_token %}
-                        <button type="submit" class="nav-btn-logout">Log Out</button>
-                    </form>
+                    <!-- Avatar dropdown -->
+                    <div class="nav-avatar-wrap" id="nav-avatar-wrap">
+                        <button class="nav-avatar-btn" id="nav-avatar-btn" aria-expanded="false" aria-label="Account menu">
+                            {% if user.profile.image %}
+                                <img src="{{ user.profile.image.url }}" alt="{{ user.username }}" class="nav-avatar-img">
+                            {% else %}
+                                <span class="nav-avatar-initials">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+                            {% endif %}
+                            <span class="nav-avatar-name">{{ user.first_name|default:user.username }}</span>
+                            <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="nav-dropdown" id="nav-dropdown" role="menu">
+                            <div class="nav-dropdown-header">
+                                <p class="nav-dropdown-name">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="nav-dropdown-role">{{ user.profile.get_role_display }}</p>
+                            </div>
+                            <div class="nav-dropdown-divider"></div>
+                            <a href="{% url 'account:profile' %}"     class="nav-dropdown-item" role="menuitem">👤 My Profile</a>
+                            <a href="{% url 'account:my_qr' %}"       class="nav-dropdown-item" role="menuitem">📲 My QR Code</a>
+                            <a href="{% url 'account:edit_profile' %}" class="nav-dropdown-item" role="menuitem">✏️ Edit Profile</a>
+                            <a href="{% url 'account:password_change' %}" class="nav-dropdown-item" role="menuitem">🔒 Change Password</a>
+                            <div class="nav-dropdown-divider"></div>
+                            <form method="post" action="{% url 'account:logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-dropdown-item nav-dropdown-logout" role="menuitem">↩ Log Out</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Hamburger (mobile) -->
+                    <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+                        <span></span><span></span><span></span>
+                    </button>
+
                 {% else %}
                     <a href="{% url 'account:login' %}" class="nav-link">Log In</a>
                     <a href="{% url 'account:register' %}" class="btn btn-primary nav-cta">Get Started</a>
                 {% endif %}
             </div>
         </nav>
+
+        <!-- Mobile drawer -->
+        {% if user.is_authenticated %}
+        <div class="nav-mobile-drawer" id="nav-mobile-drawer">
+            <a href="{% url 'clubhouse:club_list' %}"  class="nav-mobile-link">🏛️ Clubs</a>
+            <a href="{% url 'clubhouse:event_list' %}" class="nav-mobile-link">📅 Events</a>
+            <a href="{% url 'bulletin_board:request_list' %}" class="nav-mobile-link">📋 Requests</a>
+            <div class="nav-mobile-divider"></div>
+            <a href="{% url 'account:profile' %}"     class="nav-mobile-link">👤 My Profile</a>
+            <a href="{% url 'account:my_qr' %}"       class="nav-mobile-link">📲 My QR Code</a>
+            <a href="{% url 'account:edit_profile' %}" class="nav-mobile-link">✏️ Edit Profile</a>
+            <div class="nav-mobile-divider"></div>
+            <form method="post" action="{% url 'account:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="nav-mobile-link nav-mobile-logout">↩ Log Out</button>
+            </form>
+        </div>
+        {% endif %}
     </header>
 
     {% if messages %}
@@ -37,6 +96,9 @@
             {% endfor %}
         </div>
     {% endif %}
+
+    <!-- Breadcrumb slot — templates fill this in -->
+    {% block breadcrumb %}{% endblock %}
 
     <main>
         {% block content %}{% endblock %}
@@ -48,12 +110,63 @@
                 <span class="brand-otc">OTC</span><span class="brand-engage">Pulse</span>
             </div>
             <p class="footer-tagline">Your campus community, connected.</p>
+            {% if user.is_authenticated %}
+            <div class="footer-links">
+                <a href="{% url 'clubhouse:club_list' %}">Clubs</a>
+                <a href="{% url 'clubhouse:event_list' %}">Events</a>
+                <a href="{% url 'bulletin_board:request_list' %}">Requests</a>
+                <a href="{% url 'account:profile' %}">Profile</a>
+            </div>
+            {% else %}
             <div class="footer-links">
                 <a href="{% url 'account:login' %}">Log In</a>
                 <a href="{% url 'account:register' %}">Register</a>
             </div>
+            {% endif %}
         </div>
     </footer>
+
+    <script>
+    // ── Avatar dropdown ──────────────────────────────────────
+    (function () {
+        const btn  = document.getElementById('nav-avatar-btn');
+        const menu = document.getElementById('nav-dropdown');
+        const wrap = document.getElementById('nav-avatar-wrap');
+        if (!btn) return;
+
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const open = menu.classList.toggle('open');
+            btn.setAttribute('aria-expanded', open);
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!wrap.contains(e.target)) {
+                menu.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                menu.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    })();
+
+    // ── Mobile hamburger ─────────────────────────────────────
+    (function () {
+        const burger = document.getElementById('nav-hamburger');
+        const drawer = document.getElementById('nav-mobile-drawer');
+        if (!burger) return;
+
+        burger.addEventListener('click', function () {
+            const open = drawer.classList.toggle('open');
+            burger.classList.toggle('open', open);
+        });
+    })();
+    </script>
 
 </body>
 </html>

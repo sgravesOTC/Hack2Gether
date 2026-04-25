@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section">
+  <div class="section-inner" style="max-width:720px">
+    <h1 style="color:var(--navy);font-size:1.5rem;font-weight:800;margin-bottom:0.25rem">Survey Results</h1>
+    <p style="color:var(--text-muted);margin-bottom:0.5rem">{{ event.title }}</p>
+    <p style="margin-bottom:2rem"><span class="point-badge">{{ total_submissions }} submission{{ total_submissions|pluralize }}</span></p>
+    {% for r in results %}
+      <div class="card" style="margin-bottom:1.25rem">
+        <p style="font-weight:700;color:var(--navy);margin-bottom:0.75rem">{{ r.question.prompt }}</p>
+        {% if r.type == 'text' %}
+          {% if r.answers %}
+            {% for ans in r.answers %}
+              <p style="background:var(--bg);border-radius:8px;padding:0.6rem 0.9rem;margin-bottom:0.5rem;font-size:0.9rem;color:var(--text)">{{ ans }}</p>
+            {% endfor %}
+          {% else %}
+            <p style="color:var(--text-muted);font-size:0.9rem">No responses yet.</p>
+          {% endif %}
+        {% elif r.type == 'stars' %}
+          <p style="font-size:1.75rem;font-weight:800;color:var(--gold)">{{ r.avg }}★ <span style="font-size:1rem;color:var(--text-muted);font-weight:400">avg from {{ r.total }} response{{ r.total|pluralize }}</span></p>
+          {% for star, count in r.counts.items %}
+            <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.35rem;font-size:0.875rem">
+              <span style="width:40px;color:var(--text-muted)">{{ star }}★</span>
+              <div style="flex:1;background:var(--border);border-radius:100px;height:8px;overflow:hidden">
+                {% if r.total %}<div style="width:{% widthratio count r.total 100 %}%;height:100%;background:var(--gold);border-radius:100px"></div>{% endif %}
+              </div>
+              <span style="width:24px;text-align:right;color:var(--text-muted)">{{ count }}</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p>✅ Yes: <strong>{{ r.yes }}</strong> &nbsp; ❌ No: <strong>{{ r.no }}</strong></p>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p style="color:var(--text-muted)">No questions configured for this event.</p>
+    {% endfor %}
+    <a href="{% url 'clubhouse:club_detail' event.club.slug %}" class="btn btn-secondary">Back to Club</a>
+  </div>
+</div>
+{% endblock %}

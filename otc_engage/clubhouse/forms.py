@@ -1,9 +1,10 @@
 from django import forms
 from django.utils import timezone
 from datetime import timedelta
-from .models import Club, Event
+from .models import Club, Event, SurveyQuestion
 from account.models import Profile
 from bulletin_board.models import Request
+
 
 
 class ClubEditForm(forms.ModelForm):
@@ -73,7 +74,15 @@ class NewRequestForm(forms.Form):
         return cleaned_data
 
     def is_filled(self):
-        return bool(self.cleaned_data.get('type') and self.cleaned_data.get('notes'))
+        has_type = bool(self.cleaned_data.get('type'))
+        has_notes = bool(self.cleaned_data.get('notes'))
+        
+        if has_type and not has_notes:
+            self.add_error('notes', 'Please add a note for this request.')
+        if has_notes and not has_type:
+            self.add_error('type', 'Please select a type for this request.')
+        
+        return has_type and has_notes
 
 
 NewRequestFormSet = forms.formset_factory(NewRequestForm, extra=1)
@@ -115,3 +124,45 @@ class CreateEventForm(forms.ModelForm):
         if point_value < 0:
             raise forms.ValidationError('Point values must be between 0 and 10.')
         return point_value
+
+
+class SurveyQuestionForm(forms.ModelForm):
+    class Meta:
+        model = SurveyQuestion
+        fields = ['prompt', 'question_type', 'order', 'required']
+
+SurveyQuestionFormSet = forms.inlineformset_factory(
+    Event,
+    SurveyQuestion,
+    form=SurveyQuestionForm,
+    extra=1,
+    can_delete=True,
+)
+
+class SurveySubmitForm(forms.Form):
+    """Dynamically built from an event's SurveyQuestion list."""
+
+    def __init__(self, *args, questions=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        for q in (questions or []):
+            field_name = f'q_{q.pk}'
+            if q.question_type == SurveyQuestion.QuestionType.STARS:
+                self.fields[field_name] = forms.ChoiceField(
+                    label=q.prompt,
+                    choices=[(i, '★' * i) for i in range(1, 6)],
+                    widget=forms.RadioSelect,
+                    required=q.required,
+                )
+            elif q.question_type == SurveyQuestion.QuestionType.YESNO:
+                self.fields[field_name] = forms.ChoiceField(
+                    label=q.prompt,
+                    choices=[('1', 'Yes'), ('0', 'No')],
+                    widget=forms.RadioSelect,
+                    required=q.required,
+                )
+            else:
+                self.fields[field_name] = forms.CharField(
+                    label=q.prompt,
+                    widget=forms.Textarea(attrs={'rows': 3}),
+                    required=q.required,
+                )

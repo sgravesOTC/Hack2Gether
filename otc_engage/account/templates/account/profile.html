@@ -1,179 +1,210 @@
 {% extends 'base.html' %}
-
 {% block title %}Profile | OTCPulse{% endblock %}
 
-{% block content %}
-<div class="profile-wrapper">
-    <div class="profile-card">
-        <div class="profile-banner"></div>
-        <div class="profile-body">
-
-            {% if profile.image %}
-                <img class="profile-avatar profile-avatar-img" src="{{ profile.image.url }}" alt="{{ user.username }}">
-            {% else %}
-                <div class="profile-avatar">
-                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
-                </div>
-            {% endif %}
-
-            <p class="profile-name">{{ user.get_full_name|default:user.username }}</p>
-            <span class="profile-role-badge">{{ profile.get_role_display }}</span>
-
-            <div class="profile-stats">
-                <div class="profile-stat">
-                    <div class="profile-stat-value">{{ profile.points }}</div>
-                    <div class="profile-stat-label">Points</div>
-                </div>
-                <div class="profile-stat">
-                    <div class="profile-stat-value">{{ club_count }}</div>
-                    <div class="profile-stat-label">Clubs</div>
-                </div>
-                <div class="profile-stat">
-                    <div class="profile-stat-value">{{ user.profile.rosters.count }}</div>
-                    <div class="profile-stat-label">Events</div>
-                </div>
-            </div>
-
-            <div class="profile-info">
-                <div class="info-row">
-                    <span class="label">Username</span>
-                    <span class="value">{{ user.username }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">OTC Email</span>
-                    <span class="value">{{ profile.otc_email }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Email</span>
-                    <span class="value">{{ user.email }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Member Since</span>
-                    <span class="value">{{ user.date_joined|date:"F Y" }}</span>
-                </div>
-            </div>
-
-            <div class="profile-actions">
-                <a href="{% url 'account:edit_profile' %}" class="btn btn-primary">Edit Profile</a>
-                <a href="{% url 'account:password_change' %}" class="btn btn-secondary">Change Password</a>
-                <form method="post" action="{% url 'account:logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-secondary">Log Out</button>
-                </form>
-            </div>
-
-        </div>
-    </div>
+{% block breadcrumb %}
+<div class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">My Profile</span>
 </div>
+{% endblock %}
 
-{% if clubs or is_admin%}
-<section class="section">
-    <div class="section-inner">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
-        
-            <h2 style="color: var(--navy); margin: 0;">All Requests</h2>
+{% block content %}
+<div class="profile-layout">
+
+    <!-- ── Left: profile card ── -->
+    <aside class="profile-sidebar-col">
+        <div class="profile-card">
+            <div class="profile-banner"></div>
+            <div class="profile-body">
+
+                {% if profile.image %}
+                    <img class="profile-avatar profile-avatar-img" src="{{ profile.image.url }}" alt="{{ user.username }}">
+                {% else %}
+                    <div class="profile-avatar">
+                        {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                    </div>
+                {% endif %}
+
+                <p class="profile-name">{{ user.get_full_name|default:user.username }}</p>
+                <span class="profile-role-badge">{{ profile.get_role_display }}</span>
+
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">{{ profile.points }}</div>
+                        <div class="profile-stat-label">Points</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">{{ club_count }}</div>
+                        <div class="profile-stat-label">Clubs</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">{{ profile.events_attended_count }}</div>
+                        <div class="profile-stat-label">Events</div>
+                    </div>
+                </div>
+
+                <div class="profile-info">
+                    <div class="info-row">
+                        <span class="label">Username</span>
+                        <span class="value">{{ user.username }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">OTC Email</span>
+                        <span class="value" style="font-size:0.85rem;">{{ profile.otc_email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Email</span>
+                        <span class="value" style="font-size:0.85rem;">{{ user.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Member Since</span>
+                        <span class="value">{{ user.date_joined|date:"F Y" }}</span>
+                    </div>
+                </div>
+
+                <div class="profile-actions" style="flex-direction: column; gap: 0.5rem; margin-top: 1.25rem;">
+                    <a href="{% url 'account:edit_profile' %}" class="btn btn-primary" style="width:100%;text-align:center;">Edit Profile</a>
+                    <a href="{% url 'account:my_qr' %}" class="btn btn-secondary" style="width:100%;text-align:center;">My QR Code</a>
+                    <a href="{% url 'account:password_change' %}" class="btn btn-secondary" style="width:100%;text-align:center;">Change Password</a>
+                </div>
+
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── Right: requests + reservations ── -->
+    <div class="profile-main-col">
+
+        <!-- Requests -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;">
+                <h2 style="color:var(--navy);margin:0;font-size:1.1rem;">Requests</h2>
+                <a href="{% url 'bulletin_board:create_request' %}" class="btn btn-primary" style="font-size:0.85rem;padding:0.35rem 0.8rem;">+ New Request</a>
             </div>
 
-            {% if requests %}
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                {% for req in requests %}
-                    <div class="card" style="{% if req.complete %}opacity: 0.6;{% endif %}">
-                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
-                                    <span style="font-weight: 600; color: var(--navy);">{{ req.club.name }}</span>
-                                    <span class="profile-role-badge" style="background: rgba(0,100,200,0.1); color: var(--navy);">{{ req.get_type_display }}</span>
-                                    {% if req.complete %}
-                                        <span class="profile-role-badge" style="background: rgba(0,200,150,0.1); color: var(--teal);">Complete</span>
-                                    {% elif req.approval_status == 'O' %}
-                                        <span class="profile-role-badge" style="background: rgba(0,200,150,0.1); color: var(--teal);">Approved</span>
-                                    {% elif req.approval_status == 'X' %}
-                                        <span class="profile-role-badge" style="background: rgba(200,0,0,0.1); color: #b91c1c;">Denied</span>
-                                    {% else %}
-                                        <span class="profile-role-badge" style="background: rgba(255,160,0,0.15); color: #b45309;">Pending</span>
-                                    {% endif %}
-                                </div>
-                                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.4rem;">{{ req.notes }}</p>
-                                <p class="event-meta">
-                                    Due {{ req.due_date|date:"M j, Y g:i A" }}
-                                    &nbsp;·&nbsp; Submitted {{ req.created|date:"M j, Y" }}
-                                </p>
-                            </div>
+            {% if club_requests.pending or club_requests.approved or club_requests.denied %}
+            <div class="kanban-grid">
+
+                <!-- Pending -->
+                <div class="kanban-col-pending">
+                    <div class="kanban-col-header">Pending ({{ club_requests.pending|length }})</div>
+                    {% for req in club_requests.pending %}
+                        <div class="kanban-item">
+                            <p class="kanban-item-type">{{ req.get_type_display }}</p>
+                            <p class="kanban-item-notes">{{ req.notes }}</p>
+                            <p class="kanban-item-due">Due {{ req.due_date|date:"M j, Y" }}</p>
+                            {% if req.complete %}<span class="profile-role-badge" style="background:rgba(0,200,150,0.1);color:var(--teal);font-size:0.7rem;margin-top:0.3rem;display:inline-block;">Complete</span>{% endif %}
                             {% if is_admin %}
-                            <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                            <div class="kanban-item-actions">
                                 <form method="post" action="{% url 'bulletin_board:approve_request' req.pk %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">Approve</button>
+                                    <button type="submit" class="btn btn-primary" style="font-size:0.75rem;padding:0.25rem 0.6rem;">Approve</button>
                                 </form>
                                 <form method="post" action="{% url 'bulletin_board:deny_request' req.pk %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem; color: #b91c1c;">Deny</button>
+                                    <button type="submit" class="btn btn-secondary" style="font-size:0.75rem;padding:0.25rem 0.6rem;color:#b91c1c;">Deny</button>
                                 </form>
                             </div>
                             {% endif %}
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        
-        {% else %}
-            <div class="empty-state">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
-                <h3>No requests yet</h3>
-            </div>
-        {% endif %}
-    </div>
-</section>
-{% endif %}
+                    {% empty %}
+                        <p style="font-size:0.8rem;color:var(--text-muted);">None</p>
+                    {% endfor %}
+                </div>
 
-{% if is_admin and reservations is not None %}
-<section class="section section-alt">
-    <div class="section-inner">
-        <h2 style="color: var(--navy); margin-bottom: 1.25rem;">Reservations</h2>
-        {% if reservations %}
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                {% for res in reservations %}
-                    <div class="card">
-                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
-                                    <span style="font-weight: 600; color: var(--navy);">{{ res.event.title }}</span>
-                                    <span class="profile-role-badge" style="background: rgba(0,100,200,0.1); color: var(--navy);">{{ res.club.name }}</span>
-                                    {% if res.approved %}
-                                        <span class="profile-role-badge" style="background: rgba(0,200,150,0.1); color: var(--teal);">Approved</span>
-                                    {% else %}
-                                        <span class="profile-role-badge" style="background: rgba(255,160,0,0.15); color: #b45309;">Pending</span>
-                                    {% endif %}
+                <!-- Approved -->
+                <div class="kanban-col-approved">
+                    <div class="kanban-col-header">Approved ({{ club_requests.approved|length }})</div>
+                    {% for req in club_requests.approved %}
+                        <div class="kanban-item">
+                            <p class="kanban-item-type">{{ req.get_type_display }}</p>
+                            <p class="kanban-item-notes">{{ req.notes }}</p>
+                            <p class="kanban-item-due">Due {{ req.due_date|date:"M j, Y" }}</p>
+                            {% if req.complete %}<span class="profile-role-badge" style="background:rgba(0,200,150,0.1);color:var(--teal);font-size:0.7rem;margin-top:0.3rem;display:inline-block;">Complete</span>{% endif %}
+                        </div>
+                    {% empty %}
+                        <p style="font-size:0.8rem;color:var(--text-muted);">None</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Denied -->
+                <div class="kanban-col-denied">
+                    <div class="kanban-col-header">Denied ({{ club_requests.denied|length }})</div>
+                    {% for req in club_requests.denied %}
+                        <div class="kanban-item">
+                            <p class="kanban-item-type">{{ req.get_type_display }}</p>
+                            <p class="kanban-item-notes">{{ req.notes }}</p>
+                            <p class="kanban-item-due">Due {{ req.due_date|date:"M j, Y" }}</p>
+                        </div>
+                    {% empty %}
+                        <p style="font-size:0.8rem;color:var(--text-muted);">None</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+            {% else %}
+                <div style="text-align:center;padding:2.5rem 0;color:var(--text-muted);">
+                    <div style="font-size:2.5rem;margin-bottom:0.5rem;">📋</div>
+                    <p style="font-weight:600;color:var(--navy);margin-bottom:0.25rem;">No requests yet</p>
+                    <p style="font-size:0.875rem;">Submit a request for IT, facilities, finance, or event approval.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Reservations (admin only) -->
+        {% if is_admin and reservations is not None %}
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;">
+                <h2 style="color:var(--navy);margin:0;font-size:1.1rem;">Reservations</h2>
+                {% if reservations %}
+                    <span style="font-size:0.8rem;color:var(--text-muted);">{{ reservations|length }} pending</span>
+                {% endif %}
+            </div>
+            {% if reservations %}
+                <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                    {% for res in reservations %}
+                        <div style="background:var(--bg);border-radius:var(--radius);padding:1rem;border:1px solid var(--border);">
+                            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                                <div>
+                                    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.35rem;">
+                                        <span style="font-weight:700;color:var(--navy);font-size:0.925rem;">{{ res.event.title }}</span>
+                                        <span class="profile-role-badge" style="background:rgba(0,100,200,0.1);color:var(--navy);">{{ res.club.name }}</span>
+                                        {% if res.approved %}
+                                            <span class="profile-role-badge" style="background:rgba(0,200,150,0.1);color:var(--teal);">Approved</span>
+                                        {% else %}
+                                            <span class="profile-role-badge" style="background:rgba(255,160,0,0.15);color:#b45309;">Pending</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="event-meta" style="font-size:0.825rem;">
+                                        {{ res.location.building }} {{ res.location.room_num }}
+                                        {% if res.location.room_name %} — {{ res.location.room_name }}{% endif %}
+                                        · {{ res.start_time|date:"M j, Y g:i A" }} – {{ res.end_time|date:"g:i A" }}
+                                    </p>
                                 </div>
-                                <p class="event-meta">
-                                    {{ res.location.building }} {{ res.location.room_num }}
-                                    {% if res.location.room_name %} &mdash; {{ res.location.room_name }}{% endif %}
-                                    &nbsp;·&nbsp;
-                                    {{ res.start_time|date:"M j, Y g:i A" }} &ndash; {{ res.end_time|date:"g:i A" }}
-                                </p>
-                            </div>
-                            <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
-                                <form method="post" action="{% url 'bulletin_board:approve_reservation' res.pk %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">Approve</button>
-                                </form>
-                                <form method="post" action="{% url 'bulletin_board:deny_reservation' res.pk %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem; color: #b91c1c;">Deny</button>
-                                </form>
+                                <div style="display:flex;gap:0.4rem;flex-shrink:0;">
+                                    <form method="post" action="{% url 'bulletin_board:approve_reservation' res.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary" style="font-size:0.825rem;padding:0.3rem 0.75rem;">Approve</button>
+                                    </form>
+                                    <form method="post" action="{% url 'bulletin_board:deny_reservation' res.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-secondary" style="font-size:0.825rem;padding:0.3rem 0.75rem;color:#b91c1c;">Deny</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty-state">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📍</div>
-                <h3>No reservations yet</h3>
-            </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align:center;padding:2rem 0;color:var(--text-muted);">
+                    <div style="font-size:2rem;margin-bottom:0.5rem;">📍</div>
+                    <p>No reservations awaiting approval.</p>
+                </div>
+            {% endif %}
+        </div>
         {% endif %}
-    </div>
-</section>
-{% endif %}
 
+    </div>
+</div>
 {% endblock %}

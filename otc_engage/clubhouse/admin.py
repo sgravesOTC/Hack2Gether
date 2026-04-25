@@ -30,7 +30,18 @@ class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('event', 'user', 'checked_in_at')
     list_filter = ('event',)
 
+from .models import Club, Location, Event, Survey, SurveyQuestion, SurveyResponse, Attendance
+
+@admin.register(SurveyQuestion)
+class SurveyQuestionAdmin(admin.ModelAdmin):
+    list_display = ['event', 'prompt', 'question_type', 'order', 'required']
+    list_filter = ['event', 'question_type']
+
 @admin.register(Survey)
 class SurveyAdmin(admin.ModelAdmin):
-    list_display = ['event', 'attendee', 'rating', 'point_value']
-    list_filter = ['rating']
+    list_display = ['event', 'attendee', 'submitted_at', 'bonus_points_awarded']
+    list_filter = ['event', 'bonus_points_awarded']
+
+@admin.register(SurveyResponse)
+class SurveyResponseAdmin(admin.ModelAdmin):
+    list_display = ['survey', 'question', 'text_answer', 'int_answer']

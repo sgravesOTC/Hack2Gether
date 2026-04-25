@@ -13,11 +13,19 @@ class Request(models.Model):
         on_delete=models.CASCADE,
         related_name='requests'
     )
+    event = models.ForeignKey(
+        'clubhouse.Event',
+        null=True, blank=True,
+        on_delete=models.CASCADE,
+        related_name='approval_requests'
+    )
+
     class Type(models.TextChoices):
         IT = 'IT','Information Technology'
         MONEY = 'FINANCE', 'Finance'
         CLEAN = 'CUSTODIAL','Custodial'
         SAFE = 'SECURITY','Security and Safety'
+        EVENT = 'EVENT', 'Event Approval'
         OTHER = 'OTHER', 'See notes'
     type = models.CharField(max_length=10, choices=Type.choices)
     notes = models.TextField()

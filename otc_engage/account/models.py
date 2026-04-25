@@ -1,4 +1,14 @@
+import uuid
+import random
+import string
 from django.db import models
+
+
+_CODE_CHARS = string.ascii_uppercase + string.digits
+
+
+def _generate_short_code():
+    return ''.join(random.choices(_CODE_CHARS, k=8))
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
@@ -19,6 +29,11 @@ class Profile(models.Model):
     )
     points = models.IntegerField(default=0)
 
+    @property
+    def events_attended_count(self):
+        from clubhouse.models import Attendance  # local import, avoids circular import
+        return Attendance.objects.filter(user=self.user).count()
+
     class Role(models.TextChoices):
         ADMIN = 'ADMIN','Student Engagement'
         ADVISOR = 'ADVISOR','Faculty Advisor'
@@ -31,6 +46,16 @@ class Profile(models.Model):
         default=Role.STUDENT,
     )
     image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    checkin_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    short_code = models.CharField(max_length=8, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.short_code:
+            code = _generate_short_code()
+            while Profile.objects.filter(short_code=code).exclude(pk=self.pk).exists():
+                code = _generate_short_code()
+            self.short_code = code
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.user.get_full_name() or self.user.username

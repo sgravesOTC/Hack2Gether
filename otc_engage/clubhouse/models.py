@@ -66,7 +66,14 @@ class Location(models.Model):
         return f'{self.building} {self.room_num}'
 
 class Event(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = 'DRAFT', 'Draft'
+        SUBMITTED = 'SUBMITTED', 'Submitted'
+        APPROVED = 'APPROVED', 'Approved'
+        PUBLISHED = 'PUBLISHED', 'Published'
+
     title = models.CharField(max_length=50)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     club = models.ForeignKey(
@@ -82,7 +89,7 @@ class Event(models.Model):
         blank=True,
     )
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    point_value=models.IntegerField(default=0)
+    point_value=models.IntegerField(default=10)
     
     def is_active(self):
         return self.start_time<= timezone.now() <= self.end_time
@@ -96,24 +103,69 @@ class Attendance(models.Model):
     checked_in_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('event','user')
-    
+        unique_together = ('event', 'user')
+
     def __str__(self):
         return f'{self.user.first_name} {self.user.last_name} @ {self.event}'
-    
 
+    @property
+    def profile(self):
+        return self.user.profile
 
 STARS = [(i, i) for i in range(1, 6)] 
 
-class Survey(models.Model):
-    event = models.OneToOneField(
+class SurveyQuestion(models.Model):
+    class QuestionType(models.TextChoices):
+        TEXT = 'TEXT', 'Text Response'
+        STARS = 'STARS', 'Star Rating'
+        YESNO = 'YESNO', 'Yes / No'
+
+    event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
-        related_name='survey',
+        related_name='survey_questions',
     )
-    attendee = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='surveys')
-    rating = models.PositiveSmallIntegerField(choices=STARS)
-    feedback=models.TextField
-    point_value=models.IntegerField(default=0)
+    prompt = models.CharField(max_length=200)
+    question_type = models.CharField(
+        max_length=5, choices=QuestionType.choices, default=QuestionType.TEXT
+    )
+    order = models.PositiveSmallIntegerField(default=0)
+    required = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f'{self.event} — {self.prompt[:40]}'
+
+
+class Survey(models.Model):
+    """One submission per attendee per event."""
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='surveys',
+    )
+    attendee = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='surveys',
+    )
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    bonus_points_awarded = models.BooleanField(default=False)
+
     class Meta:
         unique_together = ('event', 'attendee')
+
+    def __str__(self):
+        return f'{self.attendee} @ {self.event}'
+
+
+class SurveyResponse(models.Model):
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name='responses')
+    question = models.ForeignKey(SurveyQuestion, on_delete=models.CASCADE)
+    text_answer = models.TextField(blank=True, default='')
+    int_answer = models.PositiveSmallIntegerField(null=True, blank=True)  # stars (1-5) or yes/no (1/0)
+
+    def __str__(self):
+        return f'Response to "{self.question.prompt[:30]}"'

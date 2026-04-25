@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
-
 {% block title %}Events | OTCPulse{% endblock %}
-
 {% block content %}
 
 <section class="hero hero-short">
@@ -19,6 +17,8 @@
                 {% for event in events %}
                     <div class="card">
                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+
+                            <!-- Event info -->
                             <div>
                                 <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
                                     <span style="font-weight: 600; color: var(--navy);">{{ event.title }}</span>
@@ -30,22 +30,41 @@
                                 <p class="event-meta">
                                     {{ event.start_time|date:"M j, Y g:i A" }}
                                     {% if event.end_time %}
-                                        &nbsp;–&nbsp; {{ event.end_time|date:"g:i A" }}
+                                        &nbsp;–&nbsp;{{ event.end_time|date:"g:i A" }}
                                     {% endif %}
                                     {% if event.location %}
-                                        &nbsp;·&nbsp; {{ event.location.building }} {{ event.location.room_num }}
+                                        &nbsp;·&nbsp;{{ event.location.building }} {{ event.location.room_num }}
                                         {% if event.location.room_name %}
                                             ({{ event.location.room_name }})
                                         {% endif %}
                                     {% endif %}
                                 </p>
                             </div>
-                            <div style="display: flex; gap: 0.5rem; flex-shrink: 0; flex-wrap: wrap;">
-                                {% if event.is_active %}
-                                    <a href="{% url 'clubhouse:manual_checkin' %}" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">Check In</a>
+
+                            <!-- Action buttons -->
+                            <div style="display: flex; gap: 0.5rem; flex-shrink: 0; flex-wrap: wrap; align-items: center;">
+                                <a href="{% url 'clubhouse:club_detail' event.club.slug %}"
+                                   class="btn btn-secondary"
+                                   style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">
+                                    View Club
+                                </a>
+
+                                {% if event.survey_questions.exists %}
+                                    {% if event.pk in surveyed_pks %}
+                                        <span class="btn btn-secondary"
+                                              style="font-size: 0.85rem; padding: 0.35rem 0.8rem; opacity: 0.6; cursor: default;">
+                                            ✓ Survey Submitted
+                                        </span>
+                                    {% elif event.pk in attended_pks %}
+                                        <a href="{% url 'clubhouse:take_survey' event.pk %}"
+                                           class="btn btn-primary"
+                                           style="font-size: 0.85rem; padding: 0.35rem 0.8rem; background: var(--purple);">
+                                            📝 Take Survey
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
-                                <a href="{% url 'clubhouse:club_detail' event.club.slug %}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">View Club</a>
                             </div>
+
                         </div>
                     </div>
                 {% endfor %}

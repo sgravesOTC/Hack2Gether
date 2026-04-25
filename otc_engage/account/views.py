@@ -1,4 +1,7 @@
+import io
+import qrcode
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, ProfileRegistrationForm, UserEditForm, ProfileEditForm
@@ -30,10 +33,16 @@ def register(request):
 def profile(request):
     profile = request.user.profile
     if profile.role == profile.Role.ADMIN:
-        requests = Request.objects.order_by('complete', 'due_date')
+        base_requests = Request.objects.all()
     else:
         clubs = profile.club_officer.all() | profile.faculty_advisor.all()
-        requests = Request.objects.filter(club__in=clubs).order_by('complete', 'due_date')
+        base_requests = Request.objects.filter(club__in=clubs)
+
+    club_requests = {
+        'pending': base_requests.filter(approval_status='-').order_by('due_date'),
+        'approved': base_requests.filter(approval_status='O').order_by('due_date'),
+        'denied': base_requests.filter(approval_status='X').order_by('due_date'),
+    }
 
     club_count = (
         profile.club_member.all() | profile.faculty_advisor.all()
@@ -47,11 +56,30 @@ def profile(request):
 
     return render(request, 'account/profile.html', {
         'profile': profile,
-        'requests': requests,
+        'club_requests': club_requests,
         'reservations': reservations,
         'is_admin': profile.role == profile.Role.ADMIN,
         'club_count': club_count,
     })
+
+@login_required
+def my_qr_page(request):
+    profile = request.user.profile
+    return render(request, 'account/my_qr.html', {
+        'profile': profile,
+        'section': 'account',
+    })
+
+
+@login_required
+def my_qr_image(request):
+    profile = request.user.profile
+    img = qrcode.make(profile.short_code)
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    return HttpResponse(buffer, content_type='image/png')
+
 
 @login_required
 def edit_profile(request):

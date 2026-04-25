@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Check-in Terminal — {{ event.title }} | OTCPulse{% endblock %}
+
+{% block content %}
+<div class="terminal-page">
+    <div class="terminal-card">
+        <span class="terminal-badge">Check-in Terminal</span>
+
+        <p class="terminal-event-name">{{ event.title }}</p>
+        <p class="terminal-event-meta">
+            {{ event.club.name }} &middot; {{ event.start_time|date:"M j, Y g:i A" }} – {{ event.end_time|date:"g:i A" }}
+        </p>
+
+        {% if result == 'checked_in' %}
+            <div class="terminal-result result-checked-in">✓ Checked in — {{ student_name }}</div>
+        {% elif result == 'already_in' %}
+            <div class="terminal-result result-already-in">Already checked in — {{ student_name }}</div>
+        {% elif result == 'not_found' %}
+            <div class="terminal-result result-not-found">No student found with that code.</div>
+        {% elif result == 'invalid' %}
+            <div class="terminal-result result-invalid">Enter the 8-character code from the student's QR page.</div>
+        {% endif %}
+
+        <form method="post" id="checkin-form">
+            {% csrf_token %}
+            <input
+                type="text"
+                name="code"
+                id="code-input"
+                class="terminal-input"
+                maxlength="8"
+                placeholder="••••••••"
+                autofocus
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck="false"
+            >
+            <button type="submit" class="btn btn-primary terminal-submit">
+                Check In
+            </button>
+        </form>
+
+        {% if recent %}
+        <div class="recent-list">
+            <h3>Recent check-ins</h3>
+            {% for entry in recent %}
+            <div class="recent-row">
+                <span class="recent-name">{{ entry.user.get_full_name }}</span>
+                <span class="recent-time">{{ entry.checked_in_at|date:"g:i A" }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="terminal-actions">
+            <a href="{% url 'clubhouse:club_detail' event.club.slug %}" class="btn btn-secondary">← Back to Club</a>
+            <a href="{% url 'clubhouse:event_attendance' event.pk %}" class="btn btn-secondary">View Attendance</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const input = document.getElementById('code-input');
+    input.addEventListener('input', function () {
+        const val = this.value.replace(/[^a-zA-Z0-9]/g, '');
+        this.value = val.slice(0, 8).toUpperCase();
+        if (this.value.length === 8) {
+            document.getElementById('checkin-form').submit();
+        }
+    });
+    input.focus();
+</script>
+{% endblock %}

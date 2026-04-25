@@ -87,6 +87,7 @@
                         <button class="event-tab-btn" data-tab="SUBMITTED">Submitted</button>
                         <button class="event-tab-btn" data-tab="APPROVED">Approved</button>
                         <button class="event-tab-btn" data-tab="PUBLISHED">Published</button>
+                        <button class="event-tab-btn" data-tab="COMPLETED">Completed</button>
                     </div>
 
                     <div id="event-tab-panels">
@@ -106,6 +107,8 @@
                                                 <span class="profile-role-badge" style="background:rgba(0,100,200,0.1);color:var(--navy);">Approved</span>
                                             {% elif event.status == 'PUBLISHED' %}
                                                 <span class="profile-role-badge" style="background:rgba(0,200,150,0.1);color:var(--teal);">Published</span>
+                                            {% elif event.status == 'COMPLETED' %}
+                                                <span class="profile-role-badge" style="background:rgba(108,99,255,0.1);color:var(--purple);">Completed</span>
                                             {% endif %}
                                         </div>
                                         <p class="event-meta">
@@ -137,6 +140,14 @@
                                         <a href="{% url 'bulletin_board:create_reservation' event.pk %}" class="btn btn-secondary" style="font-size:0.8rem;padding:0.3rem 0.7rem;">Reserve</a>
                                         <a href="{% url 'clubhouse:event_attendance' event.pk %}" class="btn btn-secondary" style="font-size:0.8rem;padding:0.3rem 0.7rem;">Attendance</a>
                                         <a href="{% url 'clubhouse:event_checkin_terminal' event.pk %}" class="btn btn-primary" style="font-size:0.8rem;padding:0.3rem 0.7rem;">Check-in</a>
+                                        {% if is_admin %}
+                                        <form method="post" action="{% url 'clubhouse:complete_event' event.pk %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-secondary" style="font-size:0.8rem;padding:0.3rem 0.7rem;color:var(--purple);border-color:var(--purple);">✓ Complete</button>
+                                        </form>
+                                        {% endif %}
+                                    {% elif event.status == 'COMPLETED' %}
+                                        <a href="{% url 'clubhouse:event_attendance' event.pk %}" class="btn btn-secondary" style="font-size:0.8rem;padding:0.3rem 0.7rem;">Attendance</a>
                                     {% endif %}
 
                                     {% if event.status == 'PUBLISHED' or event.status == 'APPROVED' %}

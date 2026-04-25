@@ -379,11 +379,10 @@ def event_checkin_terminal(request, pk):
                     profile.points += event.point_value
                     profile.save(update_fields=['points'])
 
-                    # Officers earn 2 pts per check-in as a reward for running the event
+                    # officers +2, non-officer members +1 per attendee
                     officer_profiles = event.club.officers.all()
                     officer_profiles.update(points=F('points') + 2)
 
-                    # Regular members (non-officers) earn 1 pt for having an active club
                     member_profiles = event.club.members.exclude(
                         pk__in=event.club.officers.values_list('pk', flat=True)
                     )
@@ -458,6 +457,44 @@ def publish_event(request, pk):
 
 
 @login_required
+def complete_event(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if request.user.profile.role != request.user.profile.Role.ADMIN:
+        raise PermissionDenied
+    if request.method == 'POST' and event.status == Event.Status.PUBLISHED:
+        event.status = Event.Status.COMPLETED
+        event.save()
+
+        if not event.staffing_points_awarded:
+            duration_hours = (event.end_time - event.start_time).total_seconds() / 3600
+            officer_pts = round(duration_hours * 10)
+            member_pts = round(duration_hours * 5)
+
+            if officer_pts:
+                event.club.officers.all().update(points=F('points') + officer_pts)
+
+            non_officer_members = event.club.members.exclude(
+                pk__in=event.club.officers.values_list('pk', flat=True)
+            )
+            if member_pts:
+                non_officer_members.update(points=F('points') + member_pts)
+
+            event.staffing_points_awarded = True
+            event.save(update_fields=['staffing_points_awarded'])
+
+            messages.success(
+                request,
+                f'"{event.title}" marked complete. '
+                f'Officers +{officer_pts} pts, members +{member_pts} pts '
+                f'({duration_hours:.1f} hrs).'
+            )
+        else:
+            messages.success(request, f'"{event.title}" marked complete.')
+
+    return redirect('clubhouse:club_detail', slug=event.club.slug)
+
+
+@login_required
 def event_attendance_export(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if not _can_edit_club(request.user.profile, event.club):
@@ -528,6 +565,7 @@ def take_survey(request, pk):
 
     if request.method == 'POST' and form.is_valid():
         survey = Survey.objects.create(event=event, attendee=user)
+        answered_count = 0
         for q in questions:
             raw = form.cleaned_data.get(f'q_{q.pk}')
             if raw is None:
@@ -535,17 +573,21 @@ def take_survey(request, pk):
             if q.question_type in (SurveyQuestion.QuestionType.STARS,
                                    SurveyQuestion.QuestionType.YESNO):
                 SurveyResponse.objects.create(survey=survey, question=q, int_answer=int(raw))
+                answered_count += 1
             else:
-                SurveyResponse.objects.create(survey=survey, question=q, text_answer=raw)
+                if raw:  # don't count blank optional text fields
+                    SurveyResponse.objects.create(survey=survey, question=q, text_answer=raw)
+                    answered_count += 1
 
-        bonus = max(1, event.point_value // 5)  # e.g. 10pt event → 2 bonus pts
-        if bonus and not survey.bonus_points_awarded:
+        # 5 pts base + 1 pt per answered question
+        bonus = 5 + answered_count
+        if not survey.bonus_points_awarded:
             profile = user.profile
             profile.points += bonus
             profile.save(update_fields=['points'])
             survey.bonus_points_awarded = True
             survey.save(update_fields=['bonus_points_awarded'])
-            messages.success(request, f'Thanks! Survey submitted — you earned {bonus} bonus point{"s" if bonus != 1 else ""}.')
+            messages.success(request, f'Thanks! Survey submitted — you earned {bonus} point{"s" if bonus != 1 else ""}.')
         else:
             messages.success(request, 'Survey submitted. Thanks for your feedback!')
 
@@ -599,8 +641,7 @@ def survey_results(request, pk):
 def leaderboard(request):
     from account.models import Profile
 
-    # Sum each approved club's member points; distinct=True prevents double-counting
-    # on the M2M join if the same profile appears via multiple paths.
+    # distinct=True avoids inflated totals from the M2M join
     clubs = (
         Club.objects.filter(approved=True, denied=False)
         .annotate(total_points=Coalesce(Sum('members__points', distinct=True), Value(0)))

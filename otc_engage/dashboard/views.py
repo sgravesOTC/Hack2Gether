@@ -19,7 +19,7 @@ def home(request):
     )
 
     now = timezone.now()
-    thirty_days_ago = now - timedelta(days=30)  # window used for "recent" check-in counts
+    thirty_days_ago = now - timedelta(days=30)  # "recent" threshold for analytics cards
 
     personal = {
         'points': profile.points,

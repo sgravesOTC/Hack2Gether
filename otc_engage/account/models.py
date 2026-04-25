@@ -51,7 +51,7 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.short_code:
-            # Regenerate on collision — statistically rare with 8-char alphanumeric space
+            # collision is extremely unlikely but handle it anyway
             code = _generate_short_code()
             while Profile.objects.filter(short_code=code).exclude(pk=self.pk).exists():
                 code = _generate_short_code()

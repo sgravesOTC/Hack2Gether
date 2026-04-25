@@ -70,6 +70,7 @@ class Event(models.Model):
         SUBMITTED = 'SUBMITTED', 'Submitted'
         APPROVED = 'APPROVED', 'Approved'
         PUBLISHED = 'PUBLISHED', 'Published'
+        COMPLETED = 'COMPLETED', 'Completed'
 
     title = models.CharField(max_length=50)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
@@ -88,7 +89,9 @@ class Event(models.Model):
         blank=True,
     )
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    point_value=models.IntegerField(default=10)
+    point_value = models.IntegerField(default=10)
+    # separate from status so complete_event can't double-award if something goes sideways
+    staffing_points_awarded = models.BooleanField(default=False)
     
     def is_active(self):
         return self.start_time<= timezone.now() <= self.end_time

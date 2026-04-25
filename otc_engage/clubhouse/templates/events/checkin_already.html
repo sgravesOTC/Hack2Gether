@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Already Checked In — {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="checkin-page">
+    <div class="checkin-card checkin-already">
+        <div class="checkin-icon checkin-icon-info">ℹ</div>
+        <h1 class="checkin-heading">Already checked in</h1>
+        <p class="checkin-event">{{ event.title }}</p>
+        <p class="checkin-club">{{ event.club.name }}</p>
+        <p class="checkin-hint">You've already been marked as attending this event.</p>
+        <a href="/" class="btn btn-secondary" style="margin-top: 1rem;">Go to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

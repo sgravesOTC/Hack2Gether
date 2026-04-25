@@ -66,7 +66,7 @@
     </div>
 </div>
 
-{% if clubs %}
+{% if clubs or is_admin%}
 <section class="section">
     <div class="section-inner">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -120,6 +120,56 @@
             <div class="empty-state">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
                 <h3>No requests yet</h3>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{% if is_admin and reservations is not None %}
+<section class="section section-alt">
+    <div class="section-inner">
+        <h2 style="color: var(--navy); margin-bottom: 1.25rem;">Reservations</h2>
+        {% if reservations %}
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                {% for res in reservations %}
+                    <div class="card">
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
+                                    <span style="font-weight: 600; color: var(--navy);">{{ res.event.title }}</span>
+                                    <span class="profile-role-badge" style="background: rgba(0,100,200,0.1); color: var(--navy);">{{ res.club.name }}</span>
+                                    {% if res.approved %}
+                                        <span class="profile-role-badge" style="background: rgba(0,200,150,0.1); color: var(--teal);">Approved</span>
+                                    {% else %}
+                                        <span class="profile-role-badge" style="background: rgba(255,160,0,0.15); color: #b45309;">Pending</span>
+                                    {% endif %}
+                                </div>
+                                <p class="event-meta">
+                                    {{ res.location.building }} {{ res.location.room_num }}
+                                    {% if res.location.room_name %} &mdash; {{ res.location.room_name }}{% endif %}
+                                    &nbsp;·&nbsp;
+                                    {{ res.start_time|date:"M j, Y g:i A" }} &ndash; {{ res.end_time|date:"g:i A" }}
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                                <form method="post" action="{% url 'bulletin_board:approve_reservation' res.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">Approve</button>
+                                </form>
+                                <form method="post" action="{% url 'bulletin_board:deny_reservation' res.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem; color: #b91c1c;">Deny</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📍</div>
+                <h3>No reservations yet</h3>
             </div>
         {% endif %}
     </div>

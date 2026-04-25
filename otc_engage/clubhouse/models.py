@@ -1,6 +1,10 @@
+import uuid
 from django.db import models
 from django.utils.text import slugify
 from account.models import Profile
+from django.conf import settings
+from django.utils import timezone
+
 
 # Create your models here.
 class Club(models.Model):
@@ -56,6 +60,11 @@ class Location(models.Model):
     room_num= models.CharField(max_length=5)
     room_name= models.CharField(max_length=50, null=True, blank=True)
 
+    def __str__(self):
+        if self.room_name:
+            return f'{self.building} {self.room_num} — {self.room_name}'
+        return f'{self.building} {self.room_num}'
+
 class Event(models.Model):
     title = models.CharField(max_length=50)
     start_time = models.DateTimeField()
@@ -72,19 +81,27 @@ class Event(models.Model):
         null=True,
         blank=True,
     )
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     point_value=models.IntegerField(default=0)
+    
+    def is_active(self):
+        return self.start_time<= timezone.now() <= self.end_time
+    
+    def __str__(self):
+        return self.title
+    
+class Attendance(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='attendees')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    checked_in_at = models.DateTimeField(auto_now_add=True)
 
-class Roster(models.Model):
-    event = models.OneToOneField(
-        Event,
-        on_delete=models.CASCADE,
-        related_name='roster',
-    )
-    attendees = models.ManyToManyField(
-        Profile,
-        related_name='rosters',
-        blank=True,
-    )
+    class Meta:
+        unique_together = ('event','user')
+    
+    def __str__(self):
+        return f'{self.user.first_name} {self.user.last_name} @ {self.event}'
+    
+
 
 STARS = [(i, i) for i in range(1, 6)] 
 

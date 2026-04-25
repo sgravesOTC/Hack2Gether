@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Reserve a Location | OTCPulse{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 560px;">
+        <h1>Reserve a Location</h1>
+        <p class="auth-subtitle">{{ event.title }} &mdash; {{ club.name }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <ul class="error-list">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div class="field">
+                <label for="{{ form.location.id_for_label }}">Location</label>
+                {{ form.location }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.start_time.id_for_label }}">Start Time</label>
+                {{ form.start_time }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.end_time.id_for_label }}">End Time</label>
+                {{ form.end_time }}
+            </div>
+
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Reservations are subject to approval by Student Engagement.
+            </p>
+
+            <div class="field-submit">
+                <button type="submit" class="btn btn-primary">Submit Reservation</button>
+                <a href="{% url 'clubhouse:club_detail' club.slug %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

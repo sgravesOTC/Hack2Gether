@@ -8,10 +8,10 @@
         <h1>Create an Event</h1>
         <p class="auth-subtitle">for {{ club.name }}</p>
 
-        <form method="post">
+        <form method="post" id="event-form">
             {% csrf_token %}
 
-            {% if form.errors %}
+            {% if form.errors or request_formset.errors %}
                 <ul class="error-list">
                     {% for field in form %}
                         {% for error in field.errors %}
@@ -20,6 +20,11 @@
                     {% endfor %}
                     {% for error in form.non_field_errors %}
                         <li>{{ error }}</li>
+                    {% endfor %}
+                    {% for req_form in request_formset %}
+                        {% for error in req_form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
                     {% endfor %}
                 </ul>
             {% endif %}
@@ -45,6 +50,38 @@
                 <small style="color: var(--text-muted);">Max 10 — contact Student Engagement for higher values.</small>
             </div>
 
+            <!-- Support Requests -->
+            <div class="card" style="margin: 1.5rem 0; border-left: 3px solid var(--gold);">
+                <p style="font-weight: 600; margin-bottom: 0.25rem; color: var(--navy);">Support Requests <span style="font-weight: normal; color: var(--text-muted);">(optional)</span></p>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Add requests for this event. Due dates will be set to the event start time.</p>
+
+                {{ request_formset.management_form }}
+                <div id="request-formset">
+                    {% for req_form in request_formset %}
+                    <div class="request-form" style="padding: 0.75rem 0; {% if not forloop.first %}border-top: 1px solid var(--border);{% endif %}">
+                        <div class="field">
+                            <label>Request Type</label>
+                            {{ req_form.type }}
+                        </div>
+                        <div class="field">
+                            <label>Notes</label>
+                            {{ req_form.notes }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" id="add-request" class="btn btn-secondary" style="font-size: 0.85rem; margin-top: 0.5rem;">+ Add Another Request</button>
+
+                {% if form.related_request.field.queryset.exists %}
+                <div class="field" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <label for="{{ form.related_request.id_for_label }}">Or Update Existing Request's Due Date</label>
+                    {{ form.related_request }}
+                    <small style="color: var(--text-muted);">{{ form.related_request.help_text }}</small>
+                </div>
+                {% endif %}
+            </div>
+
             <div class="field-submit">
                 <button type="submit" class="btn btn-primary">Create Event</button>
                 <a href="{% url 'clubhouse:club_detail' club.slug %}" class="btn btn-secondary">Cancel</a>
@@ -52,4 +89,23 @@
         </form>
     </div>
 </div>
+
+<script>
+document.getElementById('add-request').addEventListener('click', function () {
+    const formset = document.getElementById('request-formset');
+    const forms = formset.querySelectorAll('.request-form');
+    const total = document.getElementById('id_req-TOTAL_FORMS');
+    const newIndex = forms.length;
+    const template = forms[0].cloneNode(true);
+
+    template.style.borderTop = '1px solid var(--border)';
+    template.innerHTML = template.innerHTML
+        .replace(/req-\d+-/g, `req-${newIndex}-`)
+        .replace(/id_req-\d+-/g, `id_req-${newIndex}-`);
+    template.querySelectorAll('input, textarea, select').forEach(el => { el.value = ''; });
+
+    formset.appendChild(template);
+    total.value = newIndex + 1;
+});
+</script>
 {% endblock %}

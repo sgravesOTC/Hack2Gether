@@ -40,7 +40,12 @@
                                     {% endif %}
                                 </p>
                             </div>
-                            <a href="{% url 'clubhouse:club_detail' event.club.slug %}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem; flex-shrink: 0;">View Club</a>
+                            <div style="display: flex; gap: 0.5rem; flex-shrink: 0; flex-wrap: wrap;">
+                                {% if event.is_active %}
+                                    <a href="{% url 'clubhouse:manual_checkin' %}" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">Check In</a>
+                                {% endif %}
+                                <a href="{% url 'clubhouse:club_detail' event.club.slug %}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">View Club</a>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}

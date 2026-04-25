@@ -2,7 +2,7 @@ from django import forms
 from django.utils import timezone
 from datetime import timedelta
 from .models import Request, Reservation
-from clubhouse.models import Club
+from clubhouse.models import Club, Location
 
 
 class RequestForm(forms.ModelForm):
@@ -33,3 +33,27 @@ class RequestForm(forms.ModelForm):
                 'For urgent requests, please contact Student Engagement directly.'
             )
         return due_date
+
+
+class ReservationForm(forms.ModelForm):
+    class Meta:
+        model = Reservation
+        fields = ['location', 'start_time', 'end_time']
+        widgets = {
+            'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'end_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['start_time'].input_formats = ['%Y-%m-%dT%H:%M']
+        self.fields['end_time'].input_formats = ['%Y-%m-%dT%H:%M']
+        self.fields['location'].queryset = Location.objects.all()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start = cleaned_data.get('start_time')
+        end = cleaned_data.get('end_time')
+        if start and end and end <= start:
+            raise forms.ValidationError('End time must be after start time.')
+        return cleaned_data

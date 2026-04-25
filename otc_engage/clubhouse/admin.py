@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Club, Location, Event, Roster, Survey
+from .models import Club, Location, Event, Survey, Attendance
 
 @admin.register(Club)
 class ClubAdmin(admin.ModelAdmin):
@@ -20,14 +20,15 @@ class LocationAdmin(admin.ModelAdmin):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ['title', 'club', 'start_time', 'end_time', 'point_value']
+    list_display = ['title', 'club', 'start_time', 'end_time', 'point_value','is_active']
     list_filter = ['club']
     search_fields = ['title']
+    readonly_fields = ['token']
 
-@admin.register(Roster)
-class RosterAdmin(admin.ModelAdmin):
-    list_display = ['event']
-    filter_horizontal = ['attendees']
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('event', 'user', 'checked_in_at')
+    list_filter = ('event',)
 
 @admin.register(Survey)
 class SurveyAdmin(admin.ModelAdmin):

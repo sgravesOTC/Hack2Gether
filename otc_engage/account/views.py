@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, ProfileRegistrationForm, UserEditForm, ProfileEditForm
-from bulletin_board.models import Request
+from bulletin_board.models import Request, Reservation
 
 
 def register(request):
@@ -39,9 +39,16 @@ def profile(request):
         profile.club_member.all() | profile.faculty_advisor.all()
     ).distinct().count()
 
+    reservations = (
+        Reservation.objects.select_related('event', 'club', 'location').order_by('event__start_time')
+        if profile.role == profile.Role.ADMIN
+        else None
+    )
+
     return render(request, 'account/profile.html', {
         'profile': profile,
         'requests': requests,
+        'reservations': reservations,
         'is_admin': profile.role == profile.Role.ADMIN,
         'club_count': club_count,
     })
